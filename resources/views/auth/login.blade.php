@@ -17,23 +17,34 @@
                         Login
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="{{ route('login') }}">
+                        <form action="{{ route('login') }}" method="POST">
                             @csrf
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control" id="email"
-                                    aria-describedby="emailHelp">
+                                <label class="form-label">ID</label>
+                                <input type="text" name="idn"
+                                    class="form-control @error('idn') is-invalid @enderror" name="idn"
+                                    value="{{ old('idn') }}" id="idn" autofocus required>
+                                @error('idn')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control" id="password">
+                                <input id="password" type="password"
+                                    class="form-control @error('password') is-invalid @enderror" name="password"
+                                    required autocomplete="current-password">
+                                @error('password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
                             </div>
-                            <button type="submit" class="btn btn-primary text-white float-end"><a
-                                    style="text-decoration: none; color:black;" href="A_beranda">Login</a></button>
-                            <button type="submit" class="btn btn-primary text-white float-end"><a
-                                    style="text-decoration: none; color:black;" href="D_beranda">Login</a></button>
-                            <button type="submit" class="btn btn-primary text-white float-end"><a
-                                    style="text-decoration: none; color:black;" href="M_beranda">Login</a></button>
+                            <button type="submit" class="btn btn-primary text-white float-end">
+                                Login
+                            </button>
+
                         </form>
 
                     </div>

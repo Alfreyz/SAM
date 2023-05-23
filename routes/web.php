@@ -1,44 +1,38 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DosenController;
+use App\Http\Controllers\MahasiswaController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+Route::get('/debug-users', function () {
+    $users = \App\User::all();
+    dd($users);
+});
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('/', function () {
+    return view('auth.login');
+});
 
-// Route::get('/', function () {
-//     return redirect()->route('login');
-// });
-
-// Route::get('/A_beranda', function () {
-//     return redirect()->route('A_beranda');
-// });
 Auth::routes();
 
-Route::get('/', 'HomeController@index')->name('Login');
-Route::get('/A_beranda', function(){
-    return view('Users.Admin.A_beranda');
-});
-Route::get('A_datadosen', function(){
-    return view('Users.Admin.A_datadosen');
-});
-Route::get('A_datamahasiswa', function(){
-    return view('Users.Admin.A_datamahasiswa');
-});
-Route::get('D_beranda', function(){
-    return view('Users.Dosen.D_beranda');
-});
-Route::get('M_beranda', function(){
-    return view('Users.Mahasiswa.M_beranda');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/home', 'HomeController@index')->name('home');
+    Route::get('/logout', 'HomeController@logout')->name('logout');
+
+    Route::middleware(['admin'])->group(function () {
+        Route::get('admin', 'AdminController@index')->name('admin.home');
+        Route::get('datadosen', 'AdminController@datadosen')->name('admin.datadosen');
+        Route::get('A_datamahasiswa', 'AdminController@A_datamahasiswa')->name('A_datamahasiswa');
+    });
+
+    Route::middleware(['dosen'])->group(function () {
+        Route::get('dosen', 'DosenController@index')->name('dosen.home');
+        Route::get('D_datamahasiswa', 'DosenController@D_datamahasiswa')->name('D_datamahasiswa');
+    });
+
+    Route::middleware(['mahasiswa'])->group(function(){
+        Route::get('/mahasiswa', 'MahasiswaController@index')->name('mahasiswa.home');
+    });
 });

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBahanKajian extends Migration
+class CreateCplTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class CreateBahanKajian extends Migration
      */
     public function up()
     {
-        Schema::create('bahan_kajian', function (Blueprint $table) {
+        Schema::create('cpl', function (Blueprint $table) {
             $table->id();
+            $table->string('kode_cpl')->unique();
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ class CreateBahanKajian extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bahan_kajian');
+        Schema::dropIfExists('cpl');
     }
 }

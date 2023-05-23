@@ -54,7 +54,7 @@
         </div>
     </div>
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" style="width: 100%; background-color: #ffffff">
         <div class="container">
             &copy; {{ date('Y') }} SAM, All rights reserved.
         </div>

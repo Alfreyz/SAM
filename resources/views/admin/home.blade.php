@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Home')
 @section('content')
     <div class="row">
         <div class="col-md-6 mt-5">
@@ -43,7 +43,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 4%; text-align: center;">No</th>
-                                <th style="width: 9%; text-align: center;">Nik</th>
+                                <th style="width: 9%; text-align: center;">NIDN</th>
                                 <th style="width: 75%; text-align: center;">Nama</th>
                                 <th style="width: 9%; text-align: center;">Action</th>
                             </tr>
@@ -54,7 +54,7 @@
                                 <td>9873219</td>
                                 <td>Budi Sutedjo</td>
                                 <td style="text-align: center"><a class="btn btn-primary text-white"
-                                        style="text-decoration: none" href="A_datadosen">Select</a></td>
+                                        style="text-decoration: none" href="datadosen">Select</a></td>
                             </tr>
                         </tbody>
                     </table>
