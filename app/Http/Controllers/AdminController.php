@@ -19,4 +19,9 @@ class AdminController extends Controller
         $dosen = DB::table('users')->where('role', 'dosen')->get();
         return view('admin.datadosen', ['dosen' => $dosen]);
     }
+
+    public function datamahasiswa(){
+        $mahasiswa = DB::table('users')->where('role', 'mahasiswa')->get();
+        return view('admin.datamahasiswa', ['mahasiswa' => $mahasiswa]);
+    }
 }

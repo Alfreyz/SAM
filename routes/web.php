@@ -24,15 +24,15 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::get('admin', 'AdminController@index')->name('admin.home');
         Route::get('datadosen', 'AdminController@datadosen')->name('admin.datadosen');
-        Route::get('A_datamahasiswa', 'AdminController@A_datamahasiswa')->name('A_datamahasiswa');
+        Route::get('datamahasiswa', 'AdminController@datamahasiswa')->name('datamahasiswa');
     });
 
     Route::middleware(['dosen'])->group(function () {
         Route::get('dosen', 'DosenController@index')->name('dosen.home');
-        Route::get('D_datamahasiswa', 'DosenController@D_datamahasiswa')->name('D_datamahasiswa');
+        Route::get('datamahasiswa', 'DosenController@datamahasiswa')->name('datamahasiswa');
     });
 
     Route::middleware(['mahasiswa'])->group(function(){
-        Route::get('/mahasiswa', 'MahasiswaController@index')->name('mahasiswa.home');
+        Route::get('mahasiswa', 'MahasiswaController@index')->name('mahasiswa.home');
     });
 });

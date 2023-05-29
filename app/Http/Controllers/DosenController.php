@@ -13,4 +13,9 @@ class DosenController extends Controller
     {
         return view('dosen.home');
     }
+
+    public function datamahasiswa(){
+        $mahasiswa = DB::table('users')->where('role', 'mahasiswa')->get();
+        return view('dosen.datamahasiswa', ['mahasiswa' => $mahasiswa]);
+    }
 }

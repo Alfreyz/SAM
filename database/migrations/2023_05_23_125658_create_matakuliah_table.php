@@ -17,6 +17,10 @@ class CreateMatakuliahTable extends Migration
             $table->id();
             $table->string('kode_matakuliah')->unique();
             $table->string('nama_matakuliah');
+            $table->integer('sks');
+            $table->string('semester');
+            $table->string('bahan_kajian');
+            $table->string('cpl');
             $table->timestamps();
         });
     }

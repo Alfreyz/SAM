@@ -16,6 +16,15 @@ class CreateMahasiswaTable extends Migration
         Schema::create('mahasiswa', function (Blueprint $table) {
             $table->id();
             $table->string('nim')->unique();
+            $table->unsignedBigInteger('nidn');
+            $table->foreign('nidn')->references('id')->on('dosen')->onDelete('cascade');
+            $table->unsignedBigInteger('kode_matakuliah');
+            $table->foreign('kode_matakuliah')->references('id')->on('matakuliah')->onDelete('cascade');
+            $table->unsignedBigInteger('bahan_kajian');
+            $table->foreign('bahan_kajian')->references('id')->on('matakuliah')->onDelete('cascade');
+            $table->unsignedBigInteger('cpl');
+            $table->foreign('cpl')->references('id')->on('matakuliah')->onDelete('cascade');
+            $table->string('nilai');
             $table->timestamps();
         });
     }
