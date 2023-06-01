@@ -2,11 +2,44 @@
 @section('title', 'Home')
 @section('content')
     <div class="row">
+        <div class="col-md-3 mt-5">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Data Dosen</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mt-5">
+            <div class="card card-success">
+                <div class="card-body">
+                    <h5 class="card-title">Data Mahasiswa</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mt-5">
+            <div class="card card-info">
+                <div class="card-body">
+                    <h5 class="card-title">Data Matakuliah</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mt-5">
+            <div class="card card-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Data Users</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col-md-6 mt-5">
-            <!-- AREA CHART -->
             <div class="card card-primary">
                 <div class="card-header">
-                    <h3 class="card-title">Capaian Pembelajaran</h3>
+                    <h3 class="card-title">Per Angkatan Capaian Pembelajaran</h3>
                 </div>
                 <div class="card-body">
                     <div class="chart">
@@ -16,11 +49,11 @@
                 </div>
             </div>
         </div>
+
         <div class="col-md-6 mt-5">
-            <!-- AREA CHART -->
             <div class="card card-success">
                 <div class="card-header">
-                    <h3 class="card-title">Bahan Kajian</h3>
+                    <h3 class="card-title">Per Angkatan Bahan Kajian</h3>
                 </div>
                 <div class="card-body">
                     <div class="chart">
@@ -31,7 +64,7 @@
             </div>
         </div>
     </div>
-    <!-- TABLE -->
+
     <div class="row">
         <div class="col-md-12 mt-5">
             <div class="card">
@@ -42,20 +75,25 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th style="width: 4%; text-align: center;">No</th>
-                                <th style="width: 9%; text-align: center;">NIDN</th>
-                                <th style="width: 75%; text-align: center;">Nama</th>
-                                <th style="width: 9%; text-align: center;">Action</th>
+                                <th style="width: 4%;">No</th>
+                                <th style="width: 9%;">NIDN</th>
+                                <th style="width: 75%;">Nama</th>
+                                <th style="width: 9%;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td style="text-align: center">1.</td>
-                                <td>9873219</td>
-                                <td>Budi Sutedjo</td>
-                                <td style="text-align: center"><a class="btn btn-primary text-white"
-                                        style="text-decoration: none" href="datadosen">Select</a></td>
-                            </tr>
+                            @php
+                                $no = 1;
+                            @endphp
+                            @foreach ($dosen as $d)
+                                <tr>
+                                    <td>{{ $no++ }}</td>
+                                    <td>{{ $d->nidn }}</td>
+                                    <td>{{ $d->nama_dosen }}</td>
+                                    <td><a class="btn btn-primary text-white" style="text-decoration: none"
+                                            href="datadosen">Select</a></td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

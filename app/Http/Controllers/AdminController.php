@@ -7,21 +7,24 @@ use Auth;
 use DB;
 use Hash;
 use App\User;
+use Illuminate\Pagination\Paginator;
+
 
 class AdminController extends Controller
 {
     public function index()
     {
-        return view('admin.home');
+        $dosen = DB::table('dosen')->get();
+        return view('admin.home',compact('dosen'));
     }
 
     public function datadosen(){
-        $dosen = DB::table('users')->where('role', 'dosen')->get();
-        return view('admin.datadosen', ['dosen' => $dosen]);
+        $mahasiswa = DB::table('mahasiswa')->paginate(5);
+        return view('admin.datadosen', compact('mahasiswa'));
     }
 
     public function datamahasiswa(){
         $mahasiswa = DB::table('users')->where('role', 'mahasiswa')->get();
-        return view('admin.datamahasiswa', ['mahasiswa' => $mahasiswa]);
+        return view('admin.datamahasiswa', compact('mahasiswa'));
     }
 }

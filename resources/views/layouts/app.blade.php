@@ -12,19 +12,26 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.min.js"></script>
 
     <!-- Custom styles -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
         .sidebar-sticky {
             position: fixed;
+            left: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 48px 0 0;
+            height: 100vh;
+            /* Adjust the sidebar height to fill the viewport */
+        }
+
+        .sidebar-sticky {
+            position: fixed;
             top: 0;
             bottom: 0;
             left: 0;
             z-index: 100;
-            padding: 48px 0 0;
             overflow-x: hidden;
             overflow-y: auto;
             background-color: #f8f9fa;
@@ -40,25 +47,53 @@
             background-color: #f5f5f5;
             text-align: center;
         }
+
+        .content-wrapper {
+            margin-left: 13%;
+            /* Adjust the margin to accommodate the sidebar width */
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 0.5rem;
+        }
+
+        .table th {
+            text-align: center;
+        }
+
+        .table td {
+            text-align: center;
+        }
     </style>
 </head>
 
 <body style="background-color: #F1F4FA">
     <div class="container-fluid">
         <div class="row">
-            @include('layouts.side')
-            <!-- Content -->
-            <main role="main" class="col-md-10 pt-3 px-4">
-                @yield('content')
-            </main>
+            <!-- Sidebar -->
+            <aside class="col-md-1 sidebar-sticky">
+                @include('layouts.side')
+            </aside>
+
+            <!-- Main Content -->
+            <div class="col-md-10 content-wrapper">
+                <main role="main" class="px-2">
+                    @yield('content')
+                </main>
+            </div>
         </div>
     </div>
+
     <!-- Footer -->
-    <footer class="footer" style="width: 100%; background-color: #ffffff">
+    <footer class="footer" style="background-color: #ffffff">
         <div class="container">
             &copy; {{ date('Y') }} SAM, All rights reserved.
         </div>
     </footer>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"></script>
 

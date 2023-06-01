@@ -6,7 +6,7 @@
             <!-- AREA CHART -->
             <div class="card card-primary">
                 <div class="card-header">
-                    <h3 class="card-title">Capaian Pembelajaran</h3>
+                    <h3 class="card-title">Per Individu Capaian Pembelajaran</h3>
                 </div>
                 <div class="card-body">
                     <div class="chart">
@@ -20,7 +20,7 @@
             <!-- AREA CHART -->
             <div class="card card-success">
                 <div class="card-header">
-                    <h3 class="card-title">Bahan Kajian</h3>
+                    <h3 class="card-title">Per Individu Bahan Kajian</h3>
                 </div>
                 <div class="card-body">
                     <div class="chart">
