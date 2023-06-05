@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
         ]);
 
         DB::table('users')->insert([
-            'idn' => '0503037001',
+            'idn' => '503037001',
             'password' => Hash::make('dosen'),
             'role' => 'dosen',
             'created_at' => $now,

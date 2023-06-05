@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Data Dosen')
 @section('content')
+
     <div class="row">
         <div class="col-md-6 mt-3">
             <!-- AREA CHART -->
@@ -35,18 +36,21 @@
     <div class="row">
         <div class="col-md-8 mt-4">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title">Data Mahasiswa</h3>
+                    <!-- Search Field -->
+                    <form action="{{ route('admin.datadosen', ['nidn' => $nidn ?? '']) }}" method="GET"
+                        class="input-group justify-content-end">
+                        <input type="text" class="form-control-sm" id="search" name="search" placeholder="Search"
+                            value="{{ $search ?? '' }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">Search</button>
+                        </div>
+                    </form>
+
+
                 </div>
                 <div class="card-body">
-                    <!-- Search Field -->
-                    <div class="input-group mb-3 justify-content-end">
-                        <input type="text" class="form-control-sm" id="search" placeholder="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" id="searchBtn">Search</button>
-                        </div>
-                    </div>
-
                     <!-- Table -->
                     <table class="table table-bordered">
                         <thead>
@@ -64,8 +68,11 @@
                                 <tr>
                                     <td style="text-align: center">{{ $no++ }}</td>
                                     <td>{{ $m->nim }}</td>
-                                    <td style="text-align: center"><a class="btn btn-primary text-white"
-                                            style="text-decoration: none" href="datamahasiswa">Select</a></td>
+                                    <td style="text-align: center">
+                                        <a class="btn btn-primary text-white" style="text-decoration: none"
+                                            href="{{ route('admin.adminmahasiswa', ['nim' => $m->nim]) }}">Select</a>
+                                    </td>
+
                                 </tr>
                             @endforeach
                         </tbody>

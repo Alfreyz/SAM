@@ -16,7 +16,7 @@ class CreateTranskripMahasiswaTable extends Migration
         Schema::create('transkrip_mahasiswa', function (Blueprint $table) {
             $table->id();
             $table->string('nim');
-            $table->foreign('nim')->references('idn')->on('users')->onDelete('cascade');
+            $table->foreign('nim')->references('nim')->on('mahasiswa')->onDelete('cascade');
             $table->string('kode_matakuliah');
             $table->foreign('kode_matakuliah')->references('kode_matakuliah')->on('matakuliah')->onDelete('cascade');
             $table->string('nilai');

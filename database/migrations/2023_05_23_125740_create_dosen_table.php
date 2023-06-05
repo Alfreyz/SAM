@@ -16,7 +16,6 @@ class CreateDosenTable extends Migration
         Schema::create('dosen', function (Blueprint $table) {
             $table->id();
             $table->string('nidn');
-            $table->foreign('nidn')->references('idn')->on('users')->onDelete('cascade');
             $table->string('nama_dosen');
             $table->timestamps();
         });

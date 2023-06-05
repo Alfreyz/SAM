@@ -18,13 +18,46 @@ class AdminController extends Controller
         return view('admin.home',compact('dosen'));
     }
 
-    public function datadosen(){
-        $mahasiswa = DB::table('mahasiswa')->paginate(5);
-        return view('admin.datadosen', compact('mahasiswa'));
+    public function datadosen(Request $request, $nidn)
+{
+    // Search
+    $search = $request->input('search');
+    $query = DB::table('mahasiswa')
+        ->where('nidn', $nidn);
+
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('nim', 'like', '%' . $search . '%');
+        });
     }
 
-    public function datamahasiswa(){
-        $mahasiswa = DB::table('users')->where('role', 'mahasiswa')->get();
-        return view('admin.datamahasiswa', compact('mahasiswa'));
+    // Pagination
+    $mahasiswa = $query->paginate(5);
+
+    return view('admin.datadosen', compact('mahasiswa', 'search', 'nidn'));
+}
+
+
+
+
+
+    public function datamahasiswa(Request $request)
+    {
+        //Search
+        $search = $request->input('search');
+        $query = DB::table('transkrip_mahasiswa');
+        if ($search) {
+            $query->where('kode_matakuliah', 'like', '%' . $search . '%');
+        }
+        //view by transkrip_mahasiswa
+        $nim = $request->input('nim');
+        if ($nim) {
+            $query->where('nim', $nim);
+        }
+
+        //Pagination
+        $transkrip_mahasiswa = $query->paginate(15);
+
+        return view('admin.adminmahasiswa', compact('transkrip_mahasiswa', 'nim'));
     }
 }

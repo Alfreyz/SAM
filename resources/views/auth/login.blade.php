@@ -41,9 +41,17 @@
                                     </span>
                                 @enderror
                             </div>
-                            <button type="submit" class="btn btn-primary text-white float-end">
-                                Login
-                            </button>
+                            <div class="float-end">
+                                <a class="btn btn-danger text-white " style="margin-right: 10px;"
+                                    href="register">Registrasi</a>
+                                <button type="submit" class="btn btn-primary text-white">
+                                    Login
+                                </button>
+                            </div>
+
+
+
+
 
                         </form>
 

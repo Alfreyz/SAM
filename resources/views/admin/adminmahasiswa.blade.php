@@ -44,15 +44,21 @@
                             <tr>
                                 <th style="width: 4%; text-align: center;">No</th>
                                 <th style="width: 10%; text-align: center;">Kode Matakuliah</th>
-                                <th style="width: 86%; text-align: center;">Nama Matakuliah</th>
+                                <th style="width: 81%; text-align: center;">Nama Matakuliah</th>
+                                <th style="width: 5%; text-align: center;">Nilai</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td style="text-align: center">1.</td>
-                                <td style="text-align: right">9873219</td>
-                                <td style="text-align: center">Budi Sutedjo</td>
-                            </tr>
+                            @php
+                                $no = ($transkrip_mahasiswa->currentPage() - 1) * $transkrip_mahasiswa->perPage() + 1;
+                            @endphp
+                            @foreach ($transkrip_mahasiswa as $tm)
+                                <tr>
+                                    <td style="text-align: center">{{ $no++ }}</td>
+                                    <td>{{ $tm->kode_matakuliah }}</td>
+                                    <td style="text-align: center">{{ $tm->nilai }}</td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
