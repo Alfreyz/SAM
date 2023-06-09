@@ -91,7 +91,7 @@
                                     <td>{{ $d->nidn }}</td>
                                     <td>{{ $d->nama_dosen }}</td>
                                     <td><a class="btn btn-primary text-white" style="text-decoration: none"
-                                            href="{{ route('admin.datadosen', ['nidn' => $d->nidn]) }}">Select</a>
+                                            href="{{ route('admin.datadosen', ['nidn' => str_replace(["\r", "\n"], '', $d->nidn)]) }}">Select</a>
                                     </td>
                                 </tr>
                             @endforeach

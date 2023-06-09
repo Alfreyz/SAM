@@ -12,7 +12,7 @@ Route::get('/debug-users', function () {
     dd($users);
 });
 
-Route::get('/login', function () {
+Route::get('/', function () {
     return view('auth.login');
 });
 

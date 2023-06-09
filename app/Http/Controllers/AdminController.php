@@ -19,7 +19,7 @@ class AdminController extends Controller
     }
 
     public function datadosen(Request $request, $nidn)
-{
+    {
     // Search
     $search = $request->input('search');
     $query = DB::table('mahasiswa')
@@ -35,29 +35,32 @@ class AdminController extends Controller
     $mahasiswa = $query->paginate(5);
 
     return view('admin.datadosen', compact('mahasiswa', 'search', 'nidn'));
-}
-
-
-
-
+    }
 
     public function datamahasiswa(Request $request)
     {
-        //Search
-        $search = $request->input('search');
-        $query = DB::table('transkrip_mahasiswa');
-        if ($search) {
-            $query->where('kode_matakuliah', 'like', '%' . $search . '%');
-        }
-        //view by transkrip_mahasiswa
+        // Get the nim value from the URL query parameters
         $nim = $request->input('nim');
-        if ($nim) {
-            $query->where('nim', $nim);
+
+        // Search
+        $search = $request->input('search');
+
+        $query = DB::table('transkrip_mahasiswa')
+            ->leftJoin('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
+            ->select('transkrip_mahasiswa.*', 'matakuliah.nama_matakuliah');
+
+        if ($search) {
+            $query->where('matakuliah.nama_matakuliah', 'like', '%' . $search . '%')
+                  ->where('transkrip_mahasiswa.nim', $nim);
+        } else {
+            $query->where('transkrip_mahasiswa.nim', $nim);
         }
 
-        //Pagination
-        $transkrip_mahasiswa = $query->paginate(15);
+        // Pagination
+        $transkrip_mahasiswa = $query->paginate(5);
 
-        return view('admin.adminmahasiswa', compact('transkrip_mahasiswa', 'nim'));
+        return view('admin.adminmahasiswa', compact('transkrip_mahasiswa', 'search', 'nim'));
     }
+
+
 }
