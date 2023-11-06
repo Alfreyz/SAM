@@ -34,7 +34,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-8 mt-4">
+        <div class="mt-4">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title">Data Mahasiswa</h3>
@@ -47,8 +47,6 @@
                             <button class="btn btn-primary" type="submit">Search</button>
                         </div>
                     </form>
-
-
                 </div>
                 <div class="card-body">
                     <!-- Table -->
@@ -72,28 +70,14 @@
                                         <a class="btn btn-primary text-white" style="text-decoration: none"
                                             href="{{ route('admin.adminmahasiswa', ['nim' => $m->nim]) }}">Select</a>
                                     </td>
-
-                                </tr>
                             @endforeach
+                            </tr>
                         </tbody>
                     </table>
                     <div style="display:flex; justify-content: center; margin-top:20px">
-                        {{ $mahasiswa->links() }}
+                        {{ $mahasiswa->appends(['search' => $search])->links() }}
                         <!-- Render pagination links -->
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mt-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Best Mahasiswa</h3>
-                </div>
-                <div class="card-body">
-                    <table class="table table-bordered">
-                        <!-- Add your table content here -->
-                    </table>
                 </div>
             </div>
         </div>

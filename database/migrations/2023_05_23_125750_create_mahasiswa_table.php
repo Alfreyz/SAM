@@ -17,6 +17,7 @@ class CreateMahasiswaTable extends Migration
             $table->id();
             $table->string('nim')->unique();
             $table->string('nidn');
+            $table->string('angkatan');
             $table->timestamps();
         });
     }

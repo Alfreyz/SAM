@@ -20,6 +20,7 @@ class CreateTranskripMahasiswaTable extends Migration
             $table->string('kode_matakuliah');
             $table->foreign('kode_matakuliah')->references('kode_matakuliah')->on('matakuliah')->onDelete('cascade');
             $table->string('nilai');
+            $table->string('bobot');
             $table->timestamps();
         });
     }

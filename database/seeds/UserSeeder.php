@@ -26,14 +26,22 @@ class UserSeeder extends Seeder
 
         DB::table('users')->insert([
             'idn' => '503037001',
-            'password' => Hash::make('dosen'),
+            'password' => Hash::make('dosen1'),
             'role' => 'dosen',
             'created_at' => $now,
             'updated_at' => $now,
         ]);
 
         DB::table('users')->insert([
-            'idn' => '72190315',
+            'idn' => '503037002',
+            'password' => Hash::make('dosen2'),
+            'role' => 'dosen',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        DB::table('users')->insert([
+            'idn' => '72210447',
             'password' => Hash::make('mahasiswa'),
             'role' => 'mahasiswa',
             'created_at' => $now,

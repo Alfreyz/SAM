@@ -12,11 +12,25 @@ use Illuminate\Pagination\Paginator;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $dosenCount = DB::table('dosen')->count();
+        $mahasiswaCount = DB::table('mahasiswa')->count();
+        $matakuliahCount = DB::table('matakuliah')->count();
+        $usersCount = DB::table('users')->count();
         $dosen = DB::table('dosen')->get();
-        return view('admin.home',compact('dosen'));
+        $search = $request->input('search');
+        $query = DB::table('matakuliah');
+
+        if ($search) {
+            $query->where('nama_matakuliah', 'like', '%' . $search . '%');
+        }
+
+        $matakuliah = $query->paginate(5);
+
+        return view('admin.home', compact('dosen', 'dosenCount', 'mahasiswaCount', 'matakuliahCount', 'usersCount', 'matakuliah', 'search'));
     }
+
 
     public function datadosen(Request $request, $nidn)
     {
@@ -31,11 +45,14 @@ class AdminController extends Controller
         });
     }
 
+
     // Pagination
     $mahasiswa = $query->paginate(5);
 
     return view('admin.datadosen', compact('mahasiswa', 'search', 'nidn'));
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public function datamahasiswa(Request $request)
     {
@@ -58,8 +75,10 @@ class AdminController extends Controller
 
         // Pagination
         $transkrip_mahasiswa = $query->paginate(5);
+        $matakuliah = DB::table('matakuliah')->get();
 
-        return view('admin.adminmahasiswa', compact('transkrip_mahasiswa', 'search', 'nim'));
+
+        return view('admin.adminmahasiswa', compact('transkrip_mahasiswa', 'search', 'nim', 'matakuliah'));
     }
 
 
