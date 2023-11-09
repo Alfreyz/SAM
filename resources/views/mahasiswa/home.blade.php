@@ -33,7 +33,7 @@
     </div>
     <!-- TABLE -->
     <div class="row">
-        <div class="col-md-8 mt-4">
+        <div class="col-md-6 mt-4">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Data Matakuliah</h3>
@@ -42,8 +42,8 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th style="width: 10%; text-align: center;">Kode Matakuliah</th>
-                                <th style="width: 10%; text-align: center;">Nama Matakuliah</th>
+                                <th style="width: 10%;">Kode Matakuliah</th>
+                                <th style="width: 10%;">Nama Matakuliah</th>
                                 <th style="width: 2%; text-align: center;">Nilai</th>
                             </tr>
                         </thead>
@@ -52,7 +52,7 @@
                                 <tr>
                                     <td>{{ $data->kode_matakuliah }}</td>
                                     <td>{{ $data->nama_matakuliah }}</td>
-                                    <td>{{ $data->nilai }}</td>
+                                    <td class="text-center">{{ $data->nilai }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <div class="col-md-4 mt-4">
+        <div class="col-md-6 mt-4">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Grafik Nilai Matakuliah</h3>

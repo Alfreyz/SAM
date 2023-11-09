@@ -34,7 +34,7 @@
     </div>
 
     <div class="row">
-        <div class="mt-4">
+        <div class="col-md-6 mt-4">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title">Data Mahasiswa</h3>

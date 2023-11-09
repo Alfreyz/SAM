@@ -21,13 +21,14 @@ class AdminController extends Controller
         $dosen = DB::table('dosen')->get();
         $search = $request->input('search');
         $query = DB::table('matakuliah');
-
         if ($search) {
-            $query->where('nama_matakuliah', 'like', '%' . $search . '%');
+            $query->where(function ($query) use ($search) {
+                $query->where('nama_matakuliah', 'like', '%' . $search . '%')
+                    ->orWhere('semester', 'like', '%' . $search . '%');
+            });
         }
 
         $matakuliah = $query->paginate(5);
-
         return view('admin.home', compact('dosen', 'dosenCount', 'mahasiswaCount', 'matakuliahCount', 'usersCount', 'matakuliah', 'search'));
     }
 
@@ -52,7 +53,6 @@ class AdminController extends Controller
     return view('admin.datadosen', compact('mahasiswa', 'search', 'nidn'));
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public function datamahasiswa(Request $request)
     {

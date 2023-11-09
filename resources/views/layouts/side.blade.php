@@ -1,24 +1,37 @@
-<nav class="col-md-2">
-    <div class="sidebar-sticky" style="height: 100%; width: 12%; background-color: #ffffff">
-        <h5 class="sidebar-heading d-flex justify-content-center align-items-center py-3"
-            style="background-color: #808080; color: #ffffff;">
-            <i class="fas fa--alt"></i> SAM
-        </h5>
-        <div class="text-center text-muted my-2">
-            <h1>{{ Auth::user()->idn }}</h1>
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="index3.html" class="brand-link text-center">
+        <span class="brand-text font-weight-light mx-auto">SAM</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="info">
+                <a href="#" class="d-block" style="font-size: 0.7cm">{{ Auth::user()->idn }}</a>
+            </div>
         </div>
-        <ul class="nav flex-column">
-            <li class="nav-item btn-info active">
-                <a class="nav-link text-white" style="text-decoration: none" href="{{ route('home') }}">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Beranda
-                </a>
-            </li>
-        </ul>
-        <div class="mt-auto" style="position: absolute; bottom: 0; width: 100%;">
-            <button class="btn w-100" style="background-color: #fd6161">
-                <a class="nav-link text-dark" href="{{ route('logout') }}">Logout</a>
-            </button>
-        </div>
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                data-accordion="false">
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p>
+                            Beranda
+                        </p>
+                    </a>
+                </li>
+            </ul>
+            <div style="position: absolute; bottom: 0; width: 100%;">
+                <button class="btn bg-danger">
+                    <a class="nav-link text-dark" href="{{ route('logout') }}">Logout</a>
+                </button>
+            </div>
+        </nav>
+        <!-- /.sidebar-menu -->
     </div>
-</nav>
+    <!-- /.sidebar -->
+</aside>

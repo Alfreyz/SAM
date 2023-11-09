@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Home')
 @section('content')
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-md-3 mt-5">
             <div class="card">
                 <div class="card-body d-flex align-items-center">
@@ -69,9 +69,10 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
+
     <div class="row">
-        <div class="col-md-7 mt-5">
+        <div class="col-md-7">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title">Data Matakuliah</h3>
@@ -91,7 +92,7 @@
                             <tr>
                                 <th style="width: 9%;">Kode</th>
                                 <th style="width: 75%;">Matakuliah</th>
-                                <th style="width: 75%;">Semester</th>
+                                <th style="width: 16%;">Semester</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -99,7 +100,7 @@
                                 <tr>
                                     <td>{{ $m->kode_matakuliah }}</td>
                                     <td>{{ $m->nama_matakuliah }}</td>
-                                    <td>{{ $m->semester }}</td>
+                                    <td align="center">{{ $m->semester }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

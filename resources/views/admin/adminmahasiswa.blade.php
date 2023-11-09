@@ -33,7 +33,7 @@
     </div>
     <!-- TABLE -->
     <div class="row">
-        <div class="col-md-8 mt-4">
+        <div class="col-md-6 mt-4">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Data Matakuliah</h3>
@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <div class="col-md-4 mt-4">
+        <div class="col-md-6 mt-4">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Grafik Nilai Matakuliah</h3>
