@@ -23,9 +23,44 @@ class AdminController extends Controller
                     ->orWhere('semester', 'like', '%' . $search . '%');
             });
         }
+        $mahasiswabarQuery =  DB::table('mahasiswa')
+        ->join('transkrip_mahasiswa', 'mahasiswa.nim', '=', 'transkrip_mahasiswa.nim')
+        ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
+        ->select('mahasiswa.id', 'mahasiswa.nim', 'mahasiswa.nidn', 'matakuliah.bahan_kajian', 'matakuliah.cpl', 'transkrip_mahasiswa.bobot')
+        ->get();
+        $allMahasiswaData = $mahasiswabarQuery->groupBy('id');
+        $bahan_kajian_data = [];
+        $cpl_data = [];
+        foreach ($allMahasiswaData as $group) {
+            foreach ($group as $data) {
+                $bahan_kajian = explode(',', $data->bahan_kajian);
+                $cpl = explode(',', $data->cpl);
+                foreach ($bahan_kajian as $bahan) {
+                    $bahan_kajian_data[$bahan][] = $data->bobot;
+                }
+                foreach ($cpl as $cpl) {
+                    $cpl_data[$cpl][] = $data->bobot;
+                }
+            }
+        }
+        $averages_bk = $this->calculateAverages($bahan_kajian_data);
+        $averages_cpl = $this->calculateAverages($cpl_data);
 
+        $labels_bk = [];
+        $data_bk = [];
+        foreach ($averages_bk as $bahan => $average) {
+            $labels_bk[] = $bahan;
+            $data_bk[] = $average;
+        }
+
+        $labels_cpl = [];
+        $data_cpl = [];
+        foreach ($averages_cpl as $cpl => $average) {
+            $labels_cpl[] = $cpl;
+            $data_cpl[] = $average;
+        }
         $matakuliah = $query->paginate(5);
-        return view('admin.home', compact('dosen', 'dosenCount', 'mahasiswaCount', 'matakuliahCount', 'usersCount', 'matakuliah', 'search'));
+        return view('admin.home', compact('dosen', 'labels_bk', 'data_bk', 'labels_cpl', 'data_cpl', 'matakuliah', 'search'));
     }
 
     private function calculateAverages($data)
