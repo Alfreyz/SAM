@@ -38,60 +38,13 @@
     <link rel="stylesheet" href="{{ asset('/') }}plugins/daterangepicker/daterangepicker.css">
     <!-- summernote -->
     <link rel="stylesheet" href="{{ asset('/') }}plugins/summernote/summernote-bs4.min.css">
-    {{-- <style>
-        .sidebar-sticky {
-            position: fixed;
-            left: 0;
-            overflow-x: hidden;
-            overflow-y: auto;
-            padding: 48px 0 0;
-            height: 100vh;
-            /* Adjust the sidebar height to fill the viewport */
-        }
-
-        .sidebar-sticky {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            overflow-x: hidden;
-            overflow-y: auto;
-            background-color: #f8f9fa;
-            border-right: 1px solid #e5e5e5;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 60px;
-            line-height: 60px;
-            background-color: #f5f5f5;
-            text-align: center;
-        }
-
-        .content-wrapper {
-            margin-left: 13%;
-            /* Adjust the margin to accommodate the sidebar width */
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #000;
-            margin-bottom: 0.5rem;
-        }
-
-        .table th {
-            text-align: center;
-        }
-
-        .table td {
-            text-align: center;
-        }
-    </style> --}}
-
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../../dist/css/adminlte.min.css">
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -115,17 +68,16 @@
         <!-- Main Content -->
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
+            <!-- Main content -->
             <div class="content-header">
                 <div class="container-fluid">
-                    <div class="row mb-2">
+                    <div class="row mb-2 mt-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">Dashboard</h1>
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
+                            <h1 class="m-0">@yield('title')</h1>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <!-- Main content -->
             <section class="content">
                 <div class="container-fluid">
                     @yield('content')
@@ -171,6 +123,17 @@
         <script src="{{ asset('/') }}dist/js/demo.js"></script>
         <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
         <script src="{{ asset('/') }}dist/js/pages/dashboard.js"></script>
+        <!-- jQuery -->
+        <script src="{{ asset('/') }}plugins/jquery/jquery.min.js"></script>
+        <!-- Bootstrap 4 -->
+        <script src="{{ asset('/') }}plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <!-- ChartJS -->
+        <script src="{{ asset('/') }}plugins/chart.js/Chart.min.js"></script>
+        <!-- AdminLTE App -->
+        <script src="{{ asset('/') }}dist/js/adminlte.min.js"></script>
+        <!-- AdminLTE for demo purposes -->
+        <script src="{{ asset('/') }}dist/js/demo.js"></script>
+        <!-- Page specific script -->
 </body>
 
 </html>
