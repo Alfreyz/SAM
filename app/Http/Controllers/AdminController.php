@@ -26,7 +26,7 @@ class AdminController extends Controller
         $mahasiswabarQuery =  DB::table('mahasiswa')
         ->join('transkrip_mahasiswa', 'mahasiswa.nim', '=', 'transkrip_mahasiswa.nim')
         ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
-        ->select('mahasiswa.id', 'mahasiswa.nim', 'mahasiswa.nidn', 'matakuliah.bahan_kajian', 'matakuliah.cpl', 'transkrip_mahasiswa.bobot')
+        ->select('mahasiswa.id', 'mahasiswa.nim', 'mahasiswa.nidn','mahasiswa.angkatan','matakuliah.bahan_kajian', 'matakuliah.cpl', 'transkrip_mahasiswa.bobot')
         ->get();
         $allMahasiswaData = $mahasiswabarQuery->groupBy('id');
         $bahan_kajian_data = [];
