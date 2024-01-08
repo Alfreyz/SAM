@@ -15,6 +15,11 @@ Route::get('/debug-users', function () {
 // Route::get('/', function () {
 //     return view('auth.login');
 // });
+// routes/web.php
+
+Route::get('/error', function () {
+    return view('error.custome');
+})->name('error.route');
 
 Route::get('/', function () {
     return view('auth.login');
@@ -32,11 +37,15 @@ Auth::routes();
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/logout', 'HomeController@logout')->name('logout');
+    Route::get('/hubungan_bk_cpl', 'HomeController@displayTable')->name('hubungan_bk_cpl');
 
     Route::middleware(['admin'])->group(function () {
         Route::get('admin', 'AdminController@index')->name('admin.home');
         Route::get('datadosen/{nidn}', 'AdminController@datadosen')->name('admin.datadosen');
         Route::get('adminmahasiswa', 'AdminController@datamahasiswa')->name('admin.adminmahasiswa');
+        Route::post('admin/upload_filem', 'AdminController@uploadfilem')->name('admin.uploadfilem');
+        Route::post('admin/upload_filetm', 'AdminController@uploadfiletm')->name('admin.uploadfiletm');
+        Route::post('admin/updatemahasiswa', 'AdminController@updatemahasiswa')->name('admin.updatemahasiswa');
     });
 
     Route::middleware(['dosen'])->group(function () {

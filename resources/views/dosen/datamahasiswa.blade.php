@@ -1,5 +1,8 @@
 @extends('layouts.app')
-@section('title', 'Data Mahasiswa')
+@section('title', 'Data Mahasiswa - ' . $nim)
+@section('back-button')
+    <a href="{{ route('dosen.home') }}">- Home</a>
+@endsection
 @section('content')
     <div class="row">
         <div class="col-md-6 mt-3">
@@ -80,7 +83,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    {{ $transkrip_mahasiswa->appends(['nim' => $nim])->links() }}
+                    {{ $transkrip_mahasiswa->appends(['nim' => $nim])->links('pagination::bootstrap-4') }}
                 </div>
             </div>
         </div>

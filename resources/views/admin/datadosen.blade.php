@@ -1,6 +1,10 @@
 @extends('layouts.app')
-@section('title', 'Data Dosen')
+@section('title', 'Data CPL dan BK')
+@section('back-button')
+    <a href="{{ route('admin.home') }}">- Home</a>
+@endsection
 @section('content')
+
     <!-- /.card -->
     <div class="row">
         <div class="col-md-6 mt-3">
@@ -45,27 +49,54 @@
 
     <div class="row">
         <div class="col-md-12 mt-4">
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">Data Mahasiswa</h3>
-                    <!-- Search Field -->
-                    <form action="{{ route('admin.datadosen', ['nidn' => $nidn ?? '']) }}" method="GET"
-                        class="input-group justify-content-end">
-                        <input type="text" class="form-control-sm" id="search" name="search" placeholder="Search"
-                            value="{{ $search ?? '' }}">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit">Search</button>
+                <div class="card-header d-flex">
+                    <h1 class="card-title" style="font-weight: bold">Data Mahasiswa</h1>
+                    <div class="d-flex ml-auto">
+                        <div class="mr-5">
+                            <form action="{{ route('admin.uploadfilem') }}" method="post" enctype="multipart/form-data">
+                                @csrf
+                                <div class="d-flex">
+                                    <input type="file" class="form-control-file" id="fileUpload" name="fileUpload"
+                                        style="width: auto;">
+                                    <button type="submit" class="btn btn-primary"
+                                        style="height: 31.5px; padding: 3px">Upload
+                                        File</button>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                        <form action="{{ route('admin.datadosen', ['nidn' => $nidn ?? '']) }}" method="GET"
+                            class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="search" name="search" placeholder="Search"
+                                value="{{ $search ?? '' }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" style="height: 31.5px;" type="submit">Search</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <!-- Table -->
                     <table class="table table-bordered">
                         <thead>
                             <tr>
                                 <th style="width: 2%; text-align: center;">No</th>
                                 <th style="width: 20%; text-align: center;">NIM</th>
-                                <th style="width: 20%">Nama</th>
+                                <th style="width: 20%">Status</th>
                                 <th style="width: 2%; text-align: center;">Action</th>
                             </tr>
                         </thead>
@@ -77,23 +108,77 @@
                                 <tr>
                                     <td style="text-align: center">{{ $no++ }}</td>
                                     <td>{{ $m->nim }}</td>
-                                    <td>Mahasiswa</td>
-                                    <td style="text-align: center">
+                                    <td>{{ $m->status }}</td>
+                                    <td class="d-flex gap-3" style="text-align: center">
                                         <a class="btn btn-primary text-white" style="text-decoration: none"
                                             href="{{ route('admin.adminmahasiswa', ['nim' => $m->nim]) }}">Select</a>
+                                        <button class="btn btn-warning text-white update-btn" style="text-decoration: none"
+                                            data-nim="{{ $m->nim }}" data-status="{{ $m->status }}"
+                                            data-bs-toggle="modal" data-bs-target="#updateModal">
+                                            Update
+                                        </button>
                                     </td>
                             @endforeach
                             </tr>
                         </tbody>
                     </table>
                     <div style="display:flex; justify-content: center; margin-top:20px">
-                        {{ $mahasiswaTable->appends(['search' => $search])->links() }}
-                        <!-- Render pagination links -->
+                        {{ $mahasiswaTable->appends(['search' => $search])->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- Modal -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">Update Mahasiswa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateForm" action="{{ route('admin.updatemahasiswa') }}" method="POST">
+                        @csrf
+                        <div class="row mb-3">
+                            <label for="nim" class="col-sm-2 col-form-label">NIM</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="nim" name="nim" readonly>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="status" class="col-sm-2 col-form-label">Status</label>
+                            <div class="col-sm-10">
+                                <select class="form-select" id="status" name="status">
+                                    <option value="aktif">Aktif</option>
+                                    <option value="tidak aktif">Tidak Aktif</option>
+                                    <!-- Tambahkan opsi lain sesuai kebutuhan -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var myModal = new bootstrap.Modal(document.getElementById('updateModal'));
+            $('.update-btn').on('click', function() {
+                var nim = $(this).data('nim');
+                var status = $(this).data('status');
+                $('#nim').val(nim);
+                $('#status').val(status);
+                myModal.show();
+            });
+        });
+    </script>
+
+
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>

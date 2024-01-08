@@ -16,11 +16,21 @@
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                 data-accordion="false">
-                <li class="nav-item menu-open">
-                    <a href="{{ route('home') }}" class="nav-link active">
+                <li class="nav-item {{ !request()->is('hubungan_bk_cpl') ? 'menu-open' : '' }}">
+                    <a href="{{ route('home') }}"
+                        class="nav-link {{ !request()->is('hubungan_bk_cpl') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
                             Beranda
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->is('hubungan_bk_cpl') ? 'menu-open' : '' }}">
+                    <a href="{{ route('hubungan_bk_cpl') }}"
+                        class="nav-link {{ request()->is('hubungan_bk_cpl') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-user"></i>
+                        <p>
+                            Hubungan CPL dan BK
                         </p>
                     </a>
                 </li>

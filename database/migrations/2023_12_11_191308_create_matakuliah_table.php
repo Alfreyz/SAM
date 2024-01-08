@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDosenTable extends Migration
+class CreateMatakuliahTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,18 @@ class CreateDosenTable extends Migration
      */
     public function up()
     {
-        Schema::create('dosen', function (Blueprint $table) {
+        Schema::create('matakuliah', function (Blueprint $table) {
             $table->id();
-            $table->string('nidn')->unique();
-            $table->string('nama_dosen');
+            $table->string('kode_matakuliah')->unique();
+            $table->string('nama_matakuliah');
+            $table->integer('sks');
+            $table->string('semester');
+            $table->string('bahan_kajian');
+            $table->string('cpl');
             $table->timestamps();
-            $table->foreign('nidn')->references('idn')->on('users');
         });
     }
+
 
     /**
      * Reverse the migrations.
@@ -29,6 +33,6 @@ class CreateDosenTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('dosen');
+        Schema::dropIfExists('matakuliah');
     }
 }

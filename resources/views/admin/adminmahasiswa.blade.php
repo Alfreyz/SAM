@@ -1,25 +1,10 @@
 @extends('layouts.app')
-@section('title', 'Data Mahasiswa')
+@section('title', 'Data Mahasiswa - ' . $nim)
+@section('back-button')
+    <a href="{{ route('admin.datadosen', ['nidn' => $nidn]) }}">- Back</a>
+@endsection
 @section('content')
     <div class="row">
-        <div class="col-md-6 mt-3">
-            <div class="card card-success">
-                <div class="card-header">
-                    <h3 class="card-title">Per Group Bahan Kajian</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="chart">
-                        <canvas id="bkChart"
-                            style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="col-md-6 mt-3">
             <div class="card card-primary">
                 <div class="card-header">
@@ -38,24 +23,68 @@
                 </div>
             </div>
         </div>
-    </div>
-    <!-- TABLE -->
-    <div class="row">
-        <div class="col-md-12 mt-4">
-            <div class="card">
+        <div class="col-md-6 mt-3">
+            <div class="card card-success">
                 <div class="card-header">
-                    <h3 class="card-title">Data Matakuliah</h3>
+                    <h3 class="card-title">Per Group Bahan Kajian</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.adminmahasiswa') }}" method="GET" class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Search by Nama Matakuliah" name="search"
-                            value="{{ $search ?? '' }}">
-                        <input type="hidden" name="nim" value="{{ $nim ?? '' }}">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit">Search</button>
-                        </div>
-                    </form>
+                    <div class="chart">
+                        <canvas id="bkChart"
+                            style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 mt-4">
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
 
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <div class="card">
+                <div class="card-header d-flex">
+                    <h3 class="card-title" style="font-weight: bold">Data Matakuliah</h3>
+                    <div class="d-flex ml-auto">
+                        <div class="mr-5">
+                            <form action="{{ route('admin.uploadfiletm') }}" method="post" enctype="multipart/form-data">
+                                @csrf
+                                <div class="d-flex">
+                                    <input type="file" class="form-control-file" id="fileUpload" name="fileUpload"
+                                        style="width: auto;">
+                                    <button type="submit" class="btn btn-primary" style="height: 31.5px;">Upload
+                                        File</button>
+                                </div>
+                            </form>
+                        </div>
+                        <form action="{{ route('admin.adminmahasiswa') }}" method="GET" class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Search by Nama Matakuliah"
+                                name="search" value="{{ $search ?? '' }}">
+                            <input type="hidden" name="nim" value="{{ $nim ?? '' }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">Search</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -80,7 +109,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    {{ $alldata->appends(['nim' => $nim])->links() }}
+                    {{ $alldata->appends(['nim' => $nim])->links('pagination::bootstrap-4') }}
                 </div>
             </div>
         </div>

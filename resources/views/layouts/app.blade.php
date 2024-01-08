@@ -73,7 +73,7 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div>
-                            <h1>@yield('title')</h1>
+                            <h1 style="font-weight: bold">@yield('title') @yield('back-button')</h1>
                         </div>
                     </div>
                 </div>

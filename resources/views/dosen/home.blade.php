@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Data Dosen')
+@section('title', 'Data Dosen - ' . $dosen->nama_dosen)
 @section('content')
     <!-- /.card -->
     <div class="row">
@@ -61,7 +61,7 @@
                             <tr>
                                 <th style="width: 2%; text-align: center;">No</th>
                                 <th style="width: 20%; text-align: center;">NIM</th>
-                                <th style="width: 20%">Nama</th>
+                                <th style="width: 20%">Status</th>
                                 <th style="width: 2%; text-align: center;">Action</th>
                             </tr>
                         </thead>
@@ -73,7 +73,7 @@
                                 <tr>
                                     <td style="text-align: center">{{ $no++ }}</td>
                                     <td>{{ $m->nim }}</td>
-                                    <td>Mahasiswa</td>
+                                    <td>{{ $m->status }}</td>
                                     <td style="text-align: center">
                                         <a class="btn btn-primary text-white" style="text-decoration: none"
                                             href="{{ route('dosen.datamahasiswa', ['nim' => $m->nim]) }}">Select</a>
@@ -83,7 +83,7 @@
                         </tbody>
                     </table>
                     <div style="display:flex; justify-content: center; margin-top:20px">
-                        {{ $mahasiswaTable->appends(['search' => $search])->links() }}
+                        {{ $mahasiswaTable->appends(['search' => $search])->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>

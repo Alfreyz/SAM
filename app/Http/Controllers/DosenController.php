@@ -75,7 +75,11 @@ class DosenController extends Controller
         $labels_cpl[] = $cpl;
         $data_cpl[] = $average;
     }
-    return view('dosen.home', compact('mahasiswaTable', 'labels_bk', 'data_bk', 'labels_cpl', 'data_cpl', 'search', 'nidn'));
+    $dosen = DB::table('dosen')
+    ->select('nama_dosen')
+    ->where('nidn', $nidn)
+    ->first();
+    return view('dosen.home', compact('mahasiswaTable','dosen', 'labels_bk', 'data_bk', 'labels_cpl', 'data_cpl', 'search', 'nidn'));
     }
 
 
