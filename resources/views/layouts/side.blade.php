@@ -30,7 +30,7 @@
                         class="nav-link {{ request()->is('hubungan_bk_cpl') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user"></i>
                         <p>
-                            Hubungan CPL dan BK
+                            Relasi CPL dan BK
                         </p>
                     </a>
                 </li>

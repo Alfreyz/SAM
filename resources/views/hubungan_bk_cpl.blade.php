@@ -16,7 +16,7 @@
                         <thead>
                             <tr>
                                 <th>Kode</th>
-                                <th>Nama</th>
+                                <th>Deskripsi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -44,7 +44,7 @@
                         <thead>
                             <tr>
                                 <th>Kode</th>
-                                <th>Nama</th>
+                                <th>Deskripsi</th>
                             </tr>
                         </thead>
                         <tbody>

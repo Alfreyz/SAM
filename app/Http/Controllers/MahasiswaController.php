@@ -120,7 +120,7 @@ class MahasiswaController extends Controller
             $data_cpl_group[] = $average;
         }
         $transkrip_mahasiswa = $query->paginate(5)->appends(['search' => $search]);
-        return view('mahasiswa.home', compact('transkrip_mahasiswa', 'labels_bk', 'data_bk', 'labels_cpl', 'data_bk_group', 'data_cpl_group', 'data_cpl', 'search', 'nim'));
+        return view('mahasiswa.home', compact('transkrip_mahasiswa', 'labels_bk', 'data_bk', 'labels_cpl', 'data_bk_group', 'data_cpl_group', 'data_cpl', 'search', 'idn'));
     }
 
 }

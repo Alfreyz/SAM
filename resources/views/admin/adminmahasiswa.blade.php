@@ -64,7 +64,8 @@
                     <h3 class="card-title" style="font-weight: bold">Data Matakuliah</h3>
                     <div class="d-flex ml-auto">
                         <div class="mr-5">
-                            <form action="{{ route('admin.uploadfiletm') }}" method="post" enctype="multipart/form-data">
+                            <form action="{{ route('admin.uploadfiletm', ['nim' => $nim]) }}" method="post"
+                                enctype="multipart/form-data">
                                 @csrf
                                 <div class="d-flex">
                                     <input type="file" class="form-control-file" id="fileUpload" name="fileUpload"
@@ -94,6 +95,8 @@
                                 <th style="width: 5%">Kode BK</th>
                                 <th style="width: 5%">Kode CPL</th>
                                 <th style="width: 2%; text-align: center;">Nilai</th>
+                                <th style="width: 1%">Bobot</th>
+                                <th style="width: 1%">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,6 +108,16 @@
                                     <td>{{ $data->bahan_kajian }}</td>
                                     <td>{{ $data->cpl }}</td>
                                     <td class="text-center">{{ $data->nilai }}</td>
+                                    <td class="text-center">{{ $data->bobot }}</td>
+                                    <td>
+                                        <button class="btn btn-warning text-white update-btn" style="text-decoration: none"
+                                            data-kode_matakuliah="{{ $data->kode_matakuliah }}"
+                                            data-nilai="{{ $data->nilai }}" data-bobot="{{ $data->bobot }}"
+                                            data-nama_matakuliah="{{ $data->nama_matakuliah }}" data-bs-toggle="modal"
+                                            data-bs-target="#updateModal">
+                                            Update
+                                        </button>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -113,20 +126,122 @@
                 </div>
             </div>
         </div>
-
-        {{-- <div class="col-md-6 mt-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Grafik Nilai Matakuliah</h3>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">Update Mahasiswa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="card-body">
-                    <table class="table table-bordered">
-                        <!-- Table content -->
-                    </table>
+                <div class="modal-body">
+                    <form id="updateForm" action="{{ route('admin.updatenilai', ['nim' => $nim]) }}" method="POST">
+                        @csrf
+                        <div class="row mb-3">
+                            <label for="kode_matakuliah" class="col-sm-2 col-form-label">kode matakuliah</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="kode_matakuliah" name="kode_matakuliah"
+                                    readonly>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="nama_matakuliah" class="col-sm-2 col-form-label">nama matakuliah</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="nama_matakuliah" name="nama_matakuliah"
+                                    readonly>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="nilai" class="col-sm-2 col-form-label">Nilai</label>
+                            <div class="col-sm-10">
+                                <select class="form-select" id="nilai" name="nilai">
+                                    <option value="A">A</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B">B</option>
+                                    <option value="B-">B-</option>
+                                    <option value="C+">C+</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D+</option>
+                                    <option value="E">E</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="bobot" class="col-sm-2 col-form-label">bobot</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="bobot" name="bobot" readonly>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div> --}}
+        </div>
     </div>
+
+    <!-- ... (your existing HTML code) ... -->
+
+    <!-- ... (your existing HTML code) ... -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var myModal = new bootstrap.Modal(document.getElementById('updateModal'));
+
+            $('.update-btn').on('click', function() {
+                var kode_matakuliah = $(this).data('kode_matakuliah');
+                var nama_matakuliah = $(this).data('nama_matakuliah');
+                var nilai = $(this).data('nilai');
+                var bobot = $(this).data('bobot');
+
+                $('#kode_matakuliah').val(kode_matakuliah);
+                $('#nama_matakuliah').val(nama_matakuliah);
+                $('#nilai').val(nilai);
+                $('#bobot').val(bobot);
+                updateBobot();
+                myModal.show();
+            });
+
+            $('#nilai').on('change', function() {
+                updateBobot();
+            });
+
+            function updateBobot() {
+                var nilai = $('#nilai').val();
+                var bobot = calculateBobot(nilai);
+                $('#bobot').val(bobot);
+            }
+
+            function calculateBobot(nilai) {
+                switch (nilai) {
+                    case 'A':
+                        return 4.0;
+                    case 'A-':
+                        return 3.7;
+                    case 'B+':
+                        return 3.3;
+                    case 'B':
+                        return 3.0;
+                    case 'B-':
+                        return 2.7;
+                    case 'C+':
+                        return 2.3;
+                    case 'C':
+                        return 2.0;
+                    case 'D':
+                        return 1.0;
+                    case 'E':
+                        return 0.0;
+                    default:
+                        return 0.0;
+                }
+            }
+        });
+    </script>
+
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

@@ -1,25 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Data Mahasiswa')
+@section('title', 'Data Mahasiswa - ' . $idn)
 @section('content')
     <div class="row">
-        <div class="col-md-6 mt-3">
-            <div class="card card-success">
-                <div class="card-header">
-                    <h3 class="card-title">Per Group Bahan Kajian</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="chart">
-                        <canvas id="bkChart"
-                            style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="col-md-6 mt-3">
             <div class="card card-primary">
                 <div class="card-header">
@@ -33,6 +15,24 @@
                 <div class="card-body">
                     <div class="chart">
                         <canvas id="cplChart"
+                            style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mt-3">
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">Per Group Bahan Kajian</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart">
+                        <canvas id="bkChart"
                             style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
                     </div>
                 </div>
@@ -56,6 +56,7 @@
                                 <th style="width: 5%">Kode BK</th>
                                 <th style="width: 5%">Kode CPL</th>
                                 <th style="width: 2%; text-align: center;">Nilai</th>
+                                <th style="width: 2%; text-align: center;">Bobot</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -67,11 +68,12 @@
                                     <td>{{ $data->bahan_kajian }}</td>
                                     <td>{{ $data->cpl }}</td>
                                     <td class="text-center">{{ $data->nilai }}</td>
+                                    <td class="text-center">{{ $data->bobot }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
-                    {{ $transkrip_mahasiswa->appends(['search' => $search])->links() }}
+                    {{ $transkrip_mahasiswa->appends(['search' => $search])->links('pagination::bootstrap-4') }}
                 </div>
             </div>
         </div>

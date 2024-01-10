@@ -44,8 +44,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('datadosen/{nidn}', 'AdminController@datadosen')->name('admin.datadosen');
         Route::get('adminmahasiswa', 'AdminController@datamahasiswa')->name('admin.adminmahasiswa');
         Route::post('admin/upload_filem', 'AdminController@uploadfilem')->name('admin.uploadfilem');
-        Route::post('admin/upload_filetm', 'AdminController@uploadfiletm')->name('admin.uploadfiletm');
+        Route::post('admin/upload_filetm/{nim}', 'AdminController@uploadfiletm')->name('admin.uploadfiletm');
         Route::post('admin/updatemahasiswa', 'AdminController@updatemahasiswa')->name('admin.updatemahasiswa');
+        Route::post('admin/updatenilai/{nim}', 'AdminController@updatenilai')->name('admin.updatenilai');
     });
 
     Route::middleware(['dosen'])->group(function () {

@@ -198,7 +198,6 @@ class AdminController extends Controller
         ->where('mahasiswa.nim', $nim)
         ->first();
 
-        // Check if $mahasiswabarQuery is not null
         if ($mahasiswabarQuery) {
         $selectedNidn = $mahasiswabarQuery->nidn;
 
@@ -261,55 +260,66 @@ class AdminController extends Controller
         }
     }
 
-    // Upload FILE Transkrip MAHASISWA
-    public function uploadfiletm(Request $request)
-    {
+    public function uploadfiletm(Request $request, $nim)
+{
+    try {
+        $request->validate([
+            'fileUpload' => 'required|mimes:csv,txt|max:10240',
+        ]);
+
+        $file = $request->file('fileUpload');
+
+        $csvData = array_map('str_getcsv', file($file->path()));
+        $headers = array_map('trim', array_shift($csvData));
+
+        $expectedHeaders = ['nim', 'kode_matakuliah', 'nilai', 'bobot'];
+        if ($headers !== $expectedHeaders) {
+            throw new \Exception('Invalid CSV format. Please check the column headers.');
+        }
+
+        // Begin a database transaction
+        DB::beginTransaction();
+
         try {
-            // Validate the uploaded file
-            $request->validate([
-                'fileUpload' => 'required|mimes:csv,txt|max:10240', // Adjust the allowed file types and size
-            ]);
-
-            // Get the uploaded file
-            $file = $request->file('fileUpload');
-
-            // Process the CSV file
-            $csvData = array_map('str_getcsv', file($file->path()));
-            $headers = array_map('trim', array_shift($csvData)); // Extract and trim headers
-
-            // Validate CSV headers
-            $expectedHeaders = ['nim', 'kode_matakuliah', 'nilai', 'bobot'];
-            if ($headers !== $expectedHeaders) {
-                throw new \Exception('Invalid CSV format. Please check the column headers.');
-            }
-
-            // Inisialisasi $nim setelah validasi headers
-            $nim = $csvData[0][0]; // Anggap nim ada di baris pertama dan kolom pertama
-
-            // Hapus hanya data yang sesuai dengan NIM yang di-upload
-            DB::table('transkrip_mahasiswa')->where('nim', $nim)->delete();
-
-            // Proses setiap baris data dari CSV
             foreach ($csvData as $row) {
-                list($nim, $kode_matakuliah, $nilai, $bobot) = $row;
+                list($csvNim, $kode_matakuliah, $nilai, $bobot) = $row;
 
-                // Logika untuk memasukkan atau memperbarui data ke dalam database
-                // Contoh: Masukkan ke tabel 'transkrip_mahasiswa'
+                // Delete records for the specific nim and data combination
+                DB::table('transkrip_mahasiswa')
+                    ->where('nim', $csvNim)
+                    ->where('kode_matakuliah', $kode_matakuliah)
+                    ->where('nilai', $nilai)
+                    ->where('bobot', $bobot)
+                    ->delete();
+
+                // Logic to insert data into the database
+                // Example: Insert into 'transkrip_mahasiswa' table
                 DB::table('transkrip_mahasiswa')->insert([
-                    'nim' => $nim,
+                    'nim' => $csvNim,
                     'kode_matakuliah' => $kode_matakuliah,
                     'nilai' => $nilai,
                     'bobot' => $bobot,
-                    // id, created_at, dan updated_at akan dihasilkan otomatis oleh database
                 ]);
             }
 
-            return redirect()->route('admin.adminmahasiswa', ['nim' => $nim])->with('success', 'File uploaded successfully!');
-        } catch (\Exception $e) {
-            return redirect()->route('admin.adminmahasiswa', ['nim' => $nim])->withErrors([$e->getMessage()]);
-        }
+            // Commit the database transaction
+            DB::commit();
 
+            // Redirect to the specified URL with nim parameter
+            $redirectUrl = route('admin.adminmahasiswa', ['nim' => $nim]);
+            return redirect($redirectUrl)->with('success', 'File uploaded successfully!');
+        } catch (\Exception $e) {
+            // Rollback the database transaction in case of an error
+            DB::rollback();
+
+            // Redirect to the specified URL with nim parameter and error message
+            $redirectUrlWithError = route('admin.adminmahasiswa', ['nim' => $nim]);
+            return redirect($redirectUrlWithError)->withErrors([$e->getMessage()]);
+        }
+    } catch (\Exception $e) {
+        return redirect()->route('admin.adminmahasiswa')->withErrors([$e->getMessage()]);
     }
+}
 
     public function updatemahasiswa(Request $request)
     {
@@ -321,10 +331,64 @@ class AdminController extends Controller
 
     $nim = $request->input('nim');
     $status = $request->input('status');
-
     // Gunakan DB::table untuk query builder
     DB::table('mahasiswa')->where('nim', $nim)->update(['status' => $status]);
     return back()->with('success', 'Data mahasiswa berhasil diperbarui');
-
     }
+
+    public function updatenilai(Request $request, $nim)
+    {
+        // Validasi formulir jika diperlukan
+        $request->validate([
+            'kode_matakuliah' => 'required',
+            'nilai' => 'required|in:A,A-,B+,B,B-,C+,C,D,E', // Sesuaikan dengan opsi yang diperlukan
+        ]);
+
+        $kode_matakuliah = $request->input('kode_matakuliah');
+        $nilai = $request->input('nilai');
+
+        // Hitung bobot sesuai dengan keterangan yang diberikan
+        $bobot = $this->calculateBobot($nilai);
+
+        // Pastikan NIM ada sebelum melakukan update
+        if ($nim) {
+            // Lakukan update nilai dan bobot
+            DB::table('transkrip_mahasiswa')
+                ->where('nim', $nim)
+                ->where('kode_matakuliah', $kode_matakuliah)
+                ->update(['nilai' => $nilai, 'bobot' => $bobot]);
+
+            return back()->with('success', 'Data nilai dan bobot berhasil diperbarui');
+        } else {
+            return back()->with('error', 'Gagal memperbarui nilai dan bobot. NIM tidak valid.');
+        }
+    }
+
+
+protected function calculateBobot($nilai)
+{
+    // Logika untuk menghitung bobot berdasarkan keterangan yang diberikan
+    switch ($nilai) {
+        case 'A':
+            return 4.0;
+        case 'A-':
+            return 3.7;
+        case 'B+':
+            return 3.3;
+        case 'B':
+            return 3.0;
+        case 'B-':
+            return 2.7;
+        case 'C+':
+            return 2.3;
+        case 'C':
+            return 2.0;
+        case 'D':
+            return 1.0;
+        case 'E':
+            return 0.0;
+        default:
+            return 0.0;
+    }
+}
 }
