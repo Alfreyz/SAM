@@ -15,12 +15,12 @@ class CreateMahasiswaTable extends Migration
     {
         Schema::create('mahasiswa', function (Blueprint $table) {
             $table->id();
-            $table->string('nim')->unique();
+            $table->string('nim', 12)->unique();
             $table->string('nama')->nullable();
             $table->string('password');
-            $table->string('nidn');
-            $table->string('angkatan');
-            $table->string('status');
+            $table->string('nidn', 12);
+            $table->string('angkatan', 4);
+            $table->string('status', 20);
             $table->timestamps();
             $table->foreign('nidn')->references('nidn')->on('dosen');
         });

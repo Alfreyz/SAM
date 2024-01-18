@@ -15,12 +15,12 @@ class CreateTranskripMahasiswaTable extends Migration
     {
         Schema::create('transkrip_mahasiswa', function (Blueprint $table) {
             $table->id();
-            $table->string('nim');
+            $table->string('nim', 12);
             $table->foreign('nim')->references('nim')->on('mahasiswa')->onDelete('cascade');
-            $table->string('kode_matakuliah');
+            $table->string('kode_matakuliah', 6);
             $table->foreign('kode_matakuliah')->references('kode_matakuliah')->on('matakuliah')->onDelete('cascade');
-            $table->string('nilai');
-            $table->string('bobot');
+            $table->string('nilai', 2);
+            $table->string('bobot', 5);
             $table->timestamps();
         });
     }

@@ -15,7 +15,7 @@ class CreateBkTable extends Migration
     {
         Schema::create('bk', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_bk')->unique();
+            $table->string('kode_bk', 4)->unique();
             $table->string('nama_bk');
             $table->timestamps();
         });

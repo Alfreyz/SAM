@@ -15,8 +15,8 @@ class CreateBkCplTable extends Migration
     {
         Schema::create('bk_cpl', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_bk');
-            $table->string('kode_cpl');
+            $table->string('kode_bk', 4);
+            $table->string('kode_cpl', 4);
             $table->foreign('kode_bk')->references('kode_bk')->on('bk');
             $table->foreign('kode_cpl')->references('kode_cpl')->on('cpl');
             $table->timestamps();

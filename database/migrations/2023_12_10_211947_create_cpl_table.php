@@ -15,7 +15,7 @@ class CreateCplTable extends Migration
     {
         Schema::create('cpl', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_cpl')->unique();
+            $table->string('kode_cpl', 4)->unique();
             $table->string('nama_cpl');
             $table->timestamps();
         });

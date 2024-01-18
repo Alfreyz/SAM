@@ -15,12 +15,12 @@ class CreateMatakuliahTable extends Migration
     {
         Schema::create('matakuliah', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_matakuliah')->unique();
+            $table->string('kode_matakuliah', 6)->unique();
             $table->string('nama_matakuliah');
-            $table->integer('sks');
-            $table->string('semester');
-            $table->string('bahan_kajian');
-            $table->string('cpl');
+            $table->string('sks', 1);
+            $table->string('semester',1);
+            $table->string('bahan_kajian', 50);
+            $table->string('cpl', 50);
             $table->timestamps();
         });
     }
