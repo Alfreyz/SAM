@@ -8,6 +8,7 @@ use DB;
 use Hash;
 use App\User;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
@@ -15,6 +16,7 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         $dosen = DB::table('dosen')->paginate(5, ['*'], 'page_dosen');
+        $user = DB::table('users')->where('role', 'dosen')->get();
         $search = $request->input('search');
         $query = DB::table('matakuliah');
         if ($search) {
@@ -23,44 +25,8 @@ class AdminController extends Controller
                     ->orWhere('semester', 'like', '%' . $search . '%');
             });
         }
-        $mahasiswabarQuery =  DB::table('mahasiswa')
-        ->join('transkrip_mahasiswa', 'mahasiswa.nim', '=', 'transkrip_mahasiswa.nim')
-        ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
-        ->select('mahasiswa.id', 'mahasiswa.nim', 'mahasiswa.nidn','mahasiswa.angkatan','matakuliah.bahan_kajian', 'matakuliah.cpl', 'transkrip_mahasiswa.bobot')
-        ->get();
-        $allMahasiswaData = $mahasiswabarQuery->groupBy('id');
-        $bahan_kajian_data = [];
-        $cpl_data = [];
-        foreach ($allMahasiswaData as $group) {
-            foreach ($group as $data) {
-                $bahan_kajian = explode(',', $data->bahan_kajian);
-                $cpl = explode(',', $data->cpl);
-                foreach ($bahan_kajian as $bahan) {
-                    $bahan_kajian_data[$bahan][] = $data->bobot;
-                }
-                foreach ($cpl as $cpl) {
-                    $cpl_data[$cpl][] = $data->bobot;
-                }
-            }
-        }
-        $averages_bk = $this->calculateAverages($bahan_kajian_data);
-        $averages_cpl = $this->calculateAverages($cpl_data);
-
-        $labels_bk = [];
-        $data_bk = [];
-        foreach ($averages_bk as $bahan => $average) {
-            $labels_bk[] = $bahan;
-            $data_bk[] = $average;
-        }
-
-        $labels_cpl = [];
-        $data_cpl = [];
-        foreach ($averages_cpl as $cpl => $average) {
-            $labels_cpl[] = $cpl;
-            $data_cpl[] = $average;
-        }
         $matakuliah = $query->paginate(5, ['*'], 'page_matakuliah');
-        return view('admin.home', compact('dosen', 'labels_bk', 'data_bk', 'labels_cpl', 'data_cpl', 'matakuliah', 'search'));
+        return view('admin.home', compact('dosen', 'matakuliah', 'search', 'user'));
     }
 
     private function calculateAverages($data)
@@ -74,32 +40,41 @@ class AdminController extends Controller
         return $averages;
     }
 
-    public function datadosen(Request $request, $nidn)
-    {
-        $search = $request->input('search');
+    public function datadosen(Request $request, $nidn, $selectedAngkatan = null)
+{
+    $dosen = DB::table('dosen')->where('nidn', $nidn)->first();
+    $search = $request->input('search');
 
-        $mahasiswaTableQuery = DB::table('mahasiswa')
-            ->where('nidn', $nidn);
+    $angkatanList = DB::table('mahasiswa')->where('nidn', $nidn)->distinct()->pluck('angkatan');
+    // $selectedAngkatan = $request->input('selectedAngkatan');
+    $mahasiswaTableQuery = DB::table('mahasiswa')->where('nidn', $nidn);
 
-        if ($search) {
-            $mahasiswaTableQuery->where('nim', 'like', '%' . $search . '%');
-        }
+    if ($search) {
+        $mahasiswaTableQuery->where('nim', 'like', '%' . $search . '%');
+    }
 
-        $mahasiswaTable = $mahasiswaTableQuery->paginate(5);
+    $mahasiswaTable = $mahasiswaTableQuery->paginate(5);
 
-        $mahasiswabarQuery = DB::table('mahasiswa')
-            ->join('transkrip_mahasiswa', 'mahasiswa.nim', '=', 'transkrip_mahasiswa.nim')
-            ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
-            ->select('mahasiswa.id', 'mahasiswa.nim', 'mahasiswa.nidn', 'matakuliah.bahan_kajian', 'matakuliah.cpl', 'transkrip_mahasiswa.bobot')
-            ->where('mahasiswa.nidn', $nidn)
-            ->where('mahasiswa.status', 'aktif')
-            ->get();
+    $selectedAngkatan = $selectedAngkatan ?? $angkatanList->first(); // Set default if null
 
-        if ($search) {
-            $mahasiswabarQuery = $mahasiswabarQuery->filter(function ($item) use ($search) {
-                return strpos($item->nim, $search) !== false;
-            });
-        }
+    $mahasiswabarQuery = DB::table('mahasiswa')
+        ->join('transkrip_mahasiswa', 'mahasiswa.nim', '=', 'transkrip_mahasiswa.nim')
+        ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
+        ->select('mahasiswa.id', 'mahasiswa.nim', 'mahasiswa.nidn', 'matakuliah.bahan_kajian', 'mahasiswa.angkatan', 'matakuliah.cpl', DB::raw('MAX(transkrip_mahasiswa.bobot) as max_bobot'))
+        ->where('mahasiswa.nidn', $nidn)
+        ->where('mahasiswa.angkatan', $selectedAngkatan)
+        ->where('mahasiswa.status', 'aktif');
+
+    if ($search) {
+        $mahasiswabarQuery = $mahasiswabarQuery->where(function ($query) use ($search) {
+            $query->where('mahasiswa.nim', 'like', '%' . $search . '%')
+                  ->orWhere('matakuliah.bahan_kajian', 'like', '%' . $search . '%');
+        });
+    }
+
+    $mahasiswabarQuery = $mahasiswabarQuery
+        ->groupBy('mahasiswa.id', 'mahasiswa.nim', 'mahasiswa.nidn', 'mahasiswa.angkatan', 'matakuliah.kode_matakuliah', 'matakuliah.bahan_kajian', 'matakuliah.cpl')
+        ->get();
 
         $allMahasiswaData = $mahasiswabarQuery->groupBy('id');
         $bahan_kajian_data = [];
@@ -111,11 +86,11 @@ class AdminController extends Controller
                 $cpl = explode(',', $data->cpl);
 
                 foreach ($bahan_kajian as $bahan) {
-                    $bahan_kajian_data[$bahan][] = $data->bobot;
+                    $bahan_kajian_data[$bahan][] = $data->max_bobot;
                 }
 
                 foreach ($cpl as $cpl) {
-                    $cpl_data[$cpl][] = $data->bobot;
+                    $cpl_data[$cpl][] = $data->max_bobot;
                 }
             }
         }
@@ -139,8 +114,20 @@ class AdminController extends Controller
             $data_cpl[] = $average;
         }
 
-        return view('admin.datadosen', compact('mahasiswaTable', 'labels_bk', 'data_bk', 'labels_cpl', 'data_cpl', 'search', 'nidn'));
+        $chartData = [
+            'labels_bk' => $labels_bk,
+            'data_bk' => $data_bk,
+            'labels_cpl' => $labels_cpl,
+            'data_cpl' => $data_cpl,
+        ];
+
+        if($request->ajax())
+        {
+            return response()->json($chartData);
+        }
+        return view('admin.datadosen', compact('mahasiswaTable', 'selectedAngkatan', 'angkatanList', 'chartData', 'search', 'nidn', 'dosen', 'labels_cpl', 'data_cpl','labels_bk', 'data_bk'));
     }
+
 
 
     public function datamahasiswa(Request $request)
@@ -194,15 +181,14 @@ class AdminController extends Controller
         $mahasiswabarQuery = DB::table('mahasiswa')
         ->join('transkrip_mahasiswa', 'mahasiswa.nim', '=', 'transkrip_mahasiswa.nim')
         ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
-        ->select('mahasiswa.id', 'mahasiswa.nim', 'mahasiswa.nidn', 'matakuliah.bahan_kajian', 'matakuliah.cpl', 'transkrip_mahasiswa.bobot')
+        ->select('mahasiswa.id', 'mahasiswa.nim', 'mahasiswa.nidn','mahasiswa.angkatan','matakuliah.bahan_kajian', 'matakuliah.cpl', 'transkrip_mahasiswa.bobot')
         ->where('mahasiswa.nim', $nim)
         ->first();
 
         if ($mahasiswabarQuery) {
         $selectedNidn = $mahasiswabarQuery->nidn;
 
-        $resultDosen = $this->datadosen($request, $selectedNidn);
-
+        $resultDosen = $this->datadosen($request, $selectedNidn, $mahasiswabarQuery->angkatan);
         $bk_group_avg = $resultDosen->data_bk;
         $cpl_group_avg = $resultDosen->data_cpl;
 
@@ -210,164 +196,169 @@ class AdminController extends Controller
         $nidn = $alldata->first()->nidn;
         return view('admin.adminmahasiswa', compact('alldata','nidn', 'labels_bk', 'data_bk', 'labels_cpl', 'data_cpl', 'bk_group_avg', 'cpl_group_avg', 'search', 'nim'));
         } else {
-            return redirect()->route('error.route')->withErrors(['error' => 'Data not found']);
+            return redirect()->route('error.route', ['nim' => $nim])->withErrors(['error' => 'Data not found']);
         }
     }
-
-
 
     // Upload FILE MAHASISWA
     public function uploadfilem(Request $request)
     {
         try {
-            // Validate the uploaded file
             $request->validate([
-                'fileUpload' => 'required|mimes:csv,txt|max:10240', // Adjust the allowed file types and size
+                'fileUpload' => 'required|mimes:csv,txt|max:10240',
             ]);
 
-            // Get the uploaded file
             $file = $request->file('fileUpload');
-
-            // Process the CSV file
             $csvData = array_map('str_getcsv', file($file->path()));
-            $headers = array_map('trim', array_shift($csvData)); // Extract and trim headers
-
-            // Validate CSV headers
-            $expectedHeaders = ['nim', 'nidn', 'angkatan', 'status'];
-
+            $headers = array_map('trim', array_shift($csvData));
+            $expectedHeaders = ['nim','nama','password','nidn', 'angkatan', 'status'];
             if ($headers !== $expectedHeaders) {
                 throw new \Exception('Invalid CSV format. Please check the column headers.');
             }
-            // Process each row of the CSV data
             foreach ($csvData as $row) {
-                // Assuming your CSV has these columns: nim, nidn, angkatan, status
-                list($nim, $nidn, $angkatan, $status) = $row;
-
-                // Your logic to insert or update the data into the database
-                // Example: Insert into 'mahasiswa' table
+                list($nim, $nama, $password, $nidn, $angkatan, $status) = $row;
                 DB::table('mahasiswa')->insert([
                     'nim' => $nim,
+                    'nama' => $nama,
+                    'password' => Hash::make($password),
                     'nidn' => $nidn,
                     'angkatan' => $angkatan,
                     'status' => $status,
-                    // id, created_at, and updated_at will be auto-generated by the database
                 ]);
-            }
-
+            DB::table('users')->insert([
+                'idn' => $nim,
+                'password' => Hash::make($password),
+                'role' => 'mahasiswa',
+            ]);
+        }
             return redirect()->back()->with('success', 'CSV data uploaded successfully!');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors([$e->getMessage()]);
         }
     }
 
-    public function uploadfiletm(Request $request, $nim)
-{
-    try {
-        $request->validate([
-            'fileUpload' => 'required|mimes:csv,txt|max:10240',
-        ]);
-
-        $file = $request->file('fileUpload');
-
-        $csvData = array_map('str_getcsv', file($file->path()));
-        $headers = array_map('trim', array_shift($csvData));
-
-        $expectedHeaders = ['nim', 'kode_matakuliah', 'nilai', 'bobot'];
-        if ($headers !== $expectedHeaders) {
-            throw new \Exception('Invalid CSV format. Please check the column headers.');
-        }
-
-        // Begin a database transaction
-        DB::beginTransaction();
-
+    public function uploadfiletm(Request $request,$nim)
+    {
         try {
-            foreach ($csvData as $row) {
-                list($csvNim, $kode_matakuliah, $nilai, $bobot) = $row;
+            $request->validate([
+                'fileUpload' => 'required|mimes:csv,txt|max:10240',
+            ]);
 
-                // Delete records for the specific nim and data combination
-                DB::table('transkrip_mahasiswa')
-                    ->where('nim', $csvNim)
-                    ->where('kode_matakuliah', $kode_matakuliah)
-                    ->where('nilai', $nilai)
-                    ->where('bobot', $bobot)
-                    ->delete();
+            $file = $request->file('fileUpload');
 
-                // Logic to insert data into the database
-                // Example: Insert into 'transkrip_mahasiswa' table
-                DB::table('transkrip_mahasiswa')->insert([
-                    'nim' => $csvNim,
-                    'kode_matakuliah' => $kode_matakuliah,
-                    'nilai' => $nilai,
-                    'bobot' => $bobot,
-                ]);
+            $csvData = array_map('str_getcsv', file($file->path()));
+            $headers = array_map('trim', array_shift($csvData));
+            $expectedHeaders = ['nim', 'kode_matakuliah', 'nilai', 'bobot'];
+            if ($headers !== $expectedHeaders) {
+                throw new \Exception('Invalid CSV format. Please check the column headers.');
+            }
+            DB::beginTransaction();
+            try {
+                foreach ($csvData as $row) {
+
+                    list($csvNim, $kode_matakuliah, $nilai, $bobot) = $row;
+                    // Check if a record with the same nim and kode_matakuliah already exists
+                    $existingRecord = DB::table('transkrip_mahasiswa')
+                        ->where('nim', $csvNim)
+                        ->where('kode_matakuliah', $kode_matakuliah)
+                        ->first();
+                    // if ($existingRecord) {
+                    //     throw new \Exception('Duplicate entry: nim and kode_matakuliah combination already exists.');
+                    // }
+
+                    if($existingRecord){
+                        DB::table('transkrip_mahasiswa')
+                        ->where('nim', $csvNim)
+                        ->where('kode_matakuliah', $kode_matakuliah)
+                        ->update([
+                            'nilai' => $nilai,
+                            'bobot' => $bobot,
+                        ]);
+                    } else {
+                        DB::table('transkrip_mahasiswa')->insert([
+                            'nim' => $csvNim,
+                            'kode_matakuliah' => $kode_matakuliah,
+                            'nilai' => $nilai,
+                            'bobot' => $bobot,
+                        ]);
+                    }
+                    // Insert a new record
+                    // DB::table('transkrip_mahasiswa')->insert([
+                    //     'nim' => $csvNim,
+                    //     'kode_matakuliah' => $kode_matakuliah,
+                    //     'nilai' => $nilai,
+                    //     'bobot' => $bobot,
+                    // ]);
+                }
+                DB::commit();
+
+                $redirectUrl = route('admin.adminmahasiswa', ['nim' => $nim]);
+                return redirect($redirectUrl)->with('success', 'File uploaded successfully!');
+            } catch (\Exception $e) {
+                DB::rollback();
+                $redirectUrlWithError = route('admin.adminmahasiswa', ['nim' => $nim]);
+                return redirect($redirectUrlWithError)->withErrors([$e->getMessage()]);
             }
 
-            // Commit the database transaction
-            DB::commit();
-
-            // Redirect to the specified URL with nim parameter
-            $redirectUrl = route('admin.adminmahasiswa', ['nim' => $nim]);
-            return redirect($redirectUrl)->with('success', 'File uploaded successfully!');
         } catch (\Exception $e) {
-            // Rollback the database transaction in case of an error
-            DB::rollback();
-
-            // Redirect to the specified URL with nim parameter and error message
-            $redirectUrlWithError = route('admin.adminmahasiswa', ['nim' => $nim]);
-            return redirect($redirectUrlWithError)->withErrors([$e->getMessage()]);
+            return redirect()->route('admin.adminmahasiswa')->withErrors([$e->getMessage()]);
         }
-    } catch (\Exception $e) {
-        return redirect()->route('admin.adminmahasiswa')->withErrors([$e->getMessage()]);
-    }
-}
-
-    public function updatemahasiswa(Request $request)
-    {
-       // Validasi formulir jika diperlukan
-    $request->validate([
-        'nim' => 'required',
-        'status' => 'required|in:aktif,tidak aktif', // Sesuaikan dengan opsi yang diperlukan
-    ]);
-
-    $nim = $request->input('nim');
-    $status = $request->input('status');
-    // Gunakan DB::table untuk query builder
-    DB::table('mahasiswa')->where('nim', $nim)->update(['status' => $status]);
-    return back()->with('success', 'Data mahasiswa berhasil diperbarui');
     }
 
-    public function updatenilai(Request $request, $nim)
-    {
-        // Validasi formulir jika diperlukan
+
+        public function updatemahasiswa(Request $request)
+        {
         $request->validate([
-            'kode_matakuliah' => 'required',
-            'nilai' => 'required|in:A,A-,B+,B,B-,C+,C,D,E', // Sesuaikan dengan opsi yang diperlukan
+            'nim' => 'required',
+            'nama' => 'required|string',
+            'status' => 'required|in:aktif,tidak aktif',
         ]);
 
-        $kode_matakuliah = $request->input('kode_matakuliah');
-        $nilai = $request->input('nilai');
-
-        // Hitung bobot sesuai dengan keterangan yang diberikan
-        $bobot = $this->calculateBobot($nilai);
-
-        // Pastikan NIM ada sebelum melakukan update
-        if ($nim) {
-            // Lakukan update nilai dan bobot
-            DB::table('transkrip_mahasiswa')
-                ->where('nim', $nim)
-                ->where('kode_matakuliah', $kode_matakuliah)
-                ->update(['nilai' => $nilai, 'bobot' => $bobot]);
-
-            return back()->with('success', 'Data nilai dan bobot berhasil diperbarui');
-        } else {
-            return back()->with('error', 'Gagal memperbarui nilai dan bobot. NIM tidak valid.');
+        $nim = $request->input('nim');
+        $nama = $request->input('nama');
+        $status = $request->input('status');
+        DB::table('mahasiswa')->where('nim', $nim)->update(['nama' => $nama, 'status' => $status]);
+        return back()->with('success', 'Data mahasiswa berhasil diperbarui');
         }
-    }
+
+        public function updatenilai(Request $request, $nim)
+        {
+            $request->validate([
+                'kode_matakuliah' => 'required',
+                'nilai' => 'required|in:A,A-,B+,B,B-,C+,C,D,E',
+            ]);
+
+            $kode_matakuliah = $request->input('kode_matakuliah');
+            $nilai = $request->input('nilai');
+            $bobot_baru = $this->calculateBobot($nilai);
+
+            if ($nim) {
+                // Ambil nilai bobot sebelum update
+                $bobot_sebelum_update = DB::table('transkrip_mahasiswa')
+                    ->where('nim', $nim)
+                    ->where('kode_matakuliah', $kode_matakuliah)
+                    ->value('bobot');
+
+                // Update bobot baru
+                DB::table('transkrip_mahasiswa')
+                    ->where('nim', $nim)
+                    ->where('kode_matakuliah', $kode_matakuliah)
+                    ->update(['nilai' => $nilai, 'bobot' => $bobot_baru]);
+
+                // Simpan bobot baru ke dalam sesi untuk data ini
+                session(['bobot_baru_' . $kode_matakuliah => $bobot_baru, 'bobot_lama_' . $kode_matakuliah => $bobot_sebelum_update]);
+
+                return back()->with(['success' => 'Data nilai dan bobot berhasil diperbarui']);
+            } else {
+                return back()->with(['error' => 'Gagal memperbarui nilai dan bobot. NIM tidak valid.']);
+            }
+        }
+
+
 
 
 protected function calculateBobot($nilai)
 {
-    // Logika untuk menghitung bobot berdasarkan keterangan yang diberikan
     switch ($nilai) {
         case 'A':
             return 4.0;
@@ -391,4 +382,113 @@ protected function calculateBobot($nilai)
             return 0.0;
     }
 }
+
+public function adddosen(Request $request)
+{
+    try {
+        $request->validate([
+            'nidn' => 'required|string',
+            'nama_dosen' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        DB::table('dosen')->insert([
+            'nidn' => $request->input('nidn'),
+            'nama_dosen' => $request->input('nama_dosen'),
+        ]);
+
+        DB::table('users')->insert([
+            'idn' => $request->input('nidn'),
+            'password' => bcrypt($request->input('password')),
+            'role' => 'dosen',
+        ]);
+
+        return redirect()->route('admin.home')->with('success', 'Dosen added successfully!');
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors([$e->getMessage()]);
+    }
+}
+
+public function updatenamadosen(Request $request)
+{
+    $request->validate([
+        'nidn' => 'required',
+        'nama_dosen' => 'required|string',
+        'password' => 'required|string'
+    ]);
+
+    $nidn = $request->input('nidn');
+    $nama_dosen = $request->input('nama_dosen');
+    $password = $request->input('password');
+    DB::table('dosen')->where('nidn', $nidn)->update(['nama_dosen' => $nama_dosen]);
+    DB::table('users')->where('idn', $nidn)->update(['password' => bcrypt($password)]);
+    return back()->with('success', 'Data dosen berhasil diperbarui');
+}
+
+public function uploadMatakuliah(Request $request)
+{
+    try {
+        $request->validate([
+            'fileUpload' => 'required|mimes:csv,txt|max:10240',
+        ]);
+
+        $file = $request->file('fileUpload');
+        $csvData = array_map('str_getcsv', file($file->path()));
+        $headers = array_map('trim', array_shift($csvData));
+
+        $expectedHeaders = ['id', 'kode_matakuliah', 'nama_matakuliah', 'sks', 'semester', 'bahan_kajian', 'cpl', 'created_at', 'updated_at'];
+        if ($headers !== $expectedHeaders) {
+            throw new \Exception('Invalid CSV format. Please check the column headers.');
+        }
+
+        DB::beginTransaction();
+        try {
+            foreach ($csvData as $row) {
+                list($id, $kode_matakuliah, $nama_matakuliah, $sks, $semester, $bahan_kajian, $cpl, $created_at, $updated_at) = $row;
+                $existingRecord = DB::table('matakuliah')
+                    ->where('id', $id)
+                    ->where('kode_matakuliah', $kode_matakuliah)
+                    ->first();
+
+                if ($existingRecord) {
+                    DB::table('matakuliah')
+                        ->where('id', $id)
+                        ->where('kode_matakuliah', $kode_matakuliah)
+                        ->update([
+                            'nama_matakuliah' => $nama_matakuliah,
+                            'sks' => $sks,
+                            'semester' => $semester,
+                            'bahan_kajian' => $bahan_kajian,
+                            'cpl' => $cpl,
+                        ]);
+                } else {
+                    DB::table('matakuliah')->insert([
+                        'id' => $id,
+                        'kode_matakuliah' => $kode_matakuliah,
+                        'nama_matakuliah' => $nama_matakuliah,
+                        'sks' => $sks,
+                        'semester' => $semester,
+                        'bahan_kajian' => $bahan_kajian,
+                        'cpl' => $cpl,
+                    ]);
+                }
+            }
+            DB::commit();
+
+               return redirect()->back()->with('success', 'File matakuliah berhasil diunggah!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->withErrors([$e->getMessage()]);
+        }
+    } catch (\Exception $e) {
+        return redirect()->back()->withErrors([$e->getMessage()]);
+    }
+}
+
+public function deleteMatakuliah(Request $request, $kode_matakuliah)
+{
+    DB::table('matakuliah')->where('kode_matakuliah', $kode_matakuliah)->delete();
+    return back()->with('success', 'Matakuliah berhasil dihapus');
+}
+
 }

@@ -41,20 +41,6 @@
                                     </span>
                                 @enderror
                             </div>
-                            <div class="mb-3">
-                                <label for="role" class="form-label">Role</label>
-                                <select id="role" class="form-control @error('role') is-invalid @enderror"
-                                    name="role" required>
-                                    <option value="admin">Admin</option>
-                                    <option value="dosen">Dosen</option>
-                                    <option value="mahasiswa">Mahasiswa</option>
-                                </select>
-                                @error('role')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
                             <div class="float-end">
                                 <a class="btn btn-danger text-white " style="margin-right: 10px;"
                                     href="login">Login</a>

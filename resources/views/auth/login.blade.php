@@ -55,10 +55,9 @@
                     @enderror
             </div>
             <div class="d-flex justify-content-center mb-4">
-                <button type="submit" class="btn btn-primary text-white">
+                <button type="submit" class="btn btn-primary text-white" style="width: 70%">
                     Login
                 </button>
-                <a class="btn btn-danger text-white ml-2" href="register">Registrasi</a>
             </div>
             </form>
         </div>

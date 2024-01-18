@@ -96,7 +96,8 @@
                                 <th style="width: 5%">Kode CPL</th>
                                 <th style="width: 2%; text-align: center;">Nilai</th>
                                 <th style="width: 1%">Bobot</th>
-                                <th style="width: 1%">Action</th>
+                                <th style="width: 1%">Bobot lama</th>
+                                <th style="width: 1%; text-align:center;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -109,7 +110,8 @@
                                     <td>{{ $data->cpl }}</td>
                                     <td class="text-center">{{ $data->nilai }}</td>
                                     <td class="text-center">{{ $data->bobot }}</td>
-                                    <td>
+                                    <td class="text-center">{{ session('bobot_lama_' . $data->kode_matakuliah) }}</td>
+                                    <td class="d-flex gap-3">
                                         <button class="btn btn-warning text-white update-btn" style="text-decoration: none"
                                             data-kode_matakuliah="{{ $data->kode_matakuliah }}"
                                             data-nilai="{{ $data->nilai }}" data-bobot="{{ $data->bobot }}"
@@ -117,6 +119,11 @@
                                             data-bs-target="#updateModal">
                                             Update
                                         </button>
+                                        <form action="" method="post">
+                                            @csrf
+                                            @method('delete')
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
@@ -254,11 +261,11 @@
                 label: 'Data Mahasiswa',
                 data: <?php echo json_encode($data_bk); ?>,
                 backgroundColor: [
-                    'rgba(245, 105, 84, 0.5)', // Contoh warna merah dengan opacity 0.5
-                    'rgba(0, 166, 90, 0.5)', // Contoh warna hijau dengan opacity 0.5
-                    'rgba(243, 156, 18, 0.5)', // Contoh warna kuning dengan opacity 0.5
-                    'rgba(0, 192, 239, 0.5)', // Contoh warna biru dengan opacity 0.5
-                    'rgba(60, 141, 188, 0.5)', // Contoh warna biru tua dengan opacity 0.5
+                    'rgba(245, 105, 84, 0.5)',
+                    'rgba(0, 166, 90, 0.5)',
+                    'rgba(243, 156, 18, 0.5)',
+                    'rgba(0, 192, 239, 0.5)',
+                    'rgba(60, 141, 188, 0.5)',
                     'rgba(210, 214, 222, 0.5)',
                     'rgba(255, 87, 51, 0.5)',
                     'rgba(51, 255, 87, 0.5)',
@@ -281,7 +288,8 @@
             responsive: true,
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    max: 4.0
                 }
             }
         };
@@ -301,11 +309,11 @@
                 label: 'Data Mahasiswa',
                 data: <?php echo json_encode($data_cpl); ?>,
                 backgroundColor: [
-                    'rgba(245, 105, 84, 0.5)', // Contoh warna merah dengan opacity 0.5
-                    'rgba(0, 166, 90, 0.5)', // Contoh warna hijau dengan opacity 0.5
-                    'rgba(243, 156, 18, 0.5)', // Contoh warna kuning dengan opacity 0.5
-                    'rgba(0, 192, 239, 0.5)', // Contoh warna biru dengan opacity 0.5
-                    'rgba(60, 141, 188, 0.5)', // Contoh warna biru tua dengan opacity 0.5
+                    'rgba(245, 105, 84, 0.5)',
+                    'rgba(0, 166, 90, 0.5)',
+                    'rgba(243, 156, 18, 0.5)',
+                    'rgba(0, 192, 239, 0.5)',
+                    'rgba(60, 141, 188, 0.5)',
                     'rgba(210, 214, 222, 0.5)',
                     'rgba(255, 87, 51, 0.5)',
                     'rgba(51, 255, 87, 0.5)',
@@ -328,7 +336,8 @@
             responsive: true,
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    max: 4.0
                 }
             }
         };
@@ -338,9 +347,4 @@
             options: combinedOptions
         });
     </script>
-
-
-
-
-
 @endsection

@@ -21,7 +21,9 @@
         </div>
     @endif
     <div class="bg-secondary p-3">
-        <form action="{{ route('admin.uploadfiletm') }}" method="post" enctype="multipart/form-data">
+        <form action="{{ route('admin.uploadfiletm', ['nim' => $nim]) }}
+            " method="post"
+            enctype="multipart/form-data">
             @csrf
             <div class="d-flex">
                 <input type="file" class="form-control-file" id="fileUpload" name="fileUpload" style="width: auto;">

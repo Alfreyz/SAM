@@ -18,7 +18,6 @@ class CreateDosenTable extends Migration
             $table->string('nidn')->unique();
             $table->string('nama_dosen');
             $table->timestamps();
-            $table->foreign('nidn')->references('idn')->on('users');
         });
     }
 

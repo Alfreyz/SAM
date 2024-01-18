@@ -54,7 +54,178 @@ class HomeController extends Controller
         }
         return view('hubungan_bk_cpl', compact('bkCodes', 'cplData', 'cplCodes', 'bkall', 'cplall'));
     }
+    public function resetRelasi()
+    {
+        try {
+            DB::table('bk_cpl')->truncate(); // Menghapus semua data dari tabel bk_cpl
+            return redirect()->back()->with('success', 'Relasi berhasil di-reset.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mereset relasi. Error: ' . $e->getMessage());
+        }
+    }
 
+    public function uploadBK(Request $request)
+    {
+        try {
+            $request->validate([
+                'fileUpload' => 'required|mimes:csv,txt|max:10240',
+            ]);
+
+            $file = $request->file('fileUpload');
+            $csvData = array_map('str_getcsv', file($file->path()));
+            $headers = array_map('trim', array_shift($csvData));
+
+            $expectedHeaders = ['id', 'kode_bk', 'nama_bk','created_at', 'updated_at'];
+            if ($headers !== $expectedHeaders) {
+                throw new \Exception('Invalid CSV format. Please check the column headers.');
+            }
+
+            DB::beginTransaction();
+            try {
+                foreach ($csvData as $row) {
+                    list($id, $kode_bk, $nama_bk,$created_at, $updated_at) = $row;
+                    $existingRecord = DB::table('bk')
+                        ->where('id', $id)
+                        ->where('kode_bk', $kode_bk)
+                        ->first();
+
+                    if ($existingRecord) {
+                        DB::table('bk')
+                            ->where('id', $id)
+                            ->where('kode_bk', $kode_bk)
+                            ->update([
+                                'nama_bk' => $nama_bk,
+                            ]);
+                    } else {
+                        DB::table('bk')->insert([
+                            'id' => $id,
+                            'kode_bk' => $kode_bk,
+                            'nama_bk' => $nama_bk,
+                        ]);
+                    }
+                }
+                DB::commit();
+                   return redirect()->back()->with('success', 'File bk berhasil diunggah!');
+            } catch (\Exception $e) {
+                DB::rollback();
+                return redirect()->back()->withErrors([$e->getMessage()]);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([$e->getMessage()]);
+        }
+    }
+
+    public function uploadCPL(Request $request)
+    {
+        try {
+            $request->validate([
+                'fileUpload' => 'required|mimes:csv,txt|max:10240',
+            ]);
+
+            $file = $request->file('fileUpload');
+            $csvData = array_map('str_getcsv', file($file->path()));
+            $headers = array_map('trim', array_shift($csvData));
+
+            $expectedHeaders = ['id', 'kode_cpl', 'nama_cpl','created_at', 'updated_at'];
+            if ($headers !== $expectedHeaders) {
+                throw new \Exception('Invalid CSV format. Please check the column headers.');
+            }
+
+            DB::beginTransaction();
+            try {
+                foreach ($csvData as $row) {
+                    list($id, $kode_cpl, $nama_cpl,$created_at, $updated_at) = $row;
+                    $existingRecord = DB::table('cpl')
+                        ->where('id', $id)
+                        ->where('kode_cpl', $kode_cpl)
+                        ->first();
+
+                    if ($existingRecord) {
+                        DB::table('cpl')
+                            ->where('id', $id)
+                            ->where('kode_cpl', $kode_cpl)
+                            ->update([
+                                'nama_cpl' => $nama_cpl,
+                            ]);
+                    } else {
+                        DB::table('cpl')->insert([
+                            'id' => $id,
+                            'kode_cpl' => $kode_cpl,
+                            'nama_cpl' => $nama_cpl,
+                        ]);
+                    }
+                }
+                DB::commit();
+                   return redirect()->back()->with('success', 'File cpl berhasil diunggah!');
+            } catch (\Exception $e) {
+                DB::rollback();
+                return redirect()->back()->withErrors([$e->getMessage()]);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([$e->getMessage()]);
+        }
+    }
+
+    public function uploadBK_CPL(Request $request)
+    {
+        try {
+            $request->validate([
+                'fileUpload' => 'required|mimes:csv,txt|max:10240',
+            ]);
+
+            $file = $request->file('fileUpload');
+            $csvData = array_map('str_getcsv', file($file->path()));
+            $headers = array_map('trim', array_shift($csvData));
+
+            $expectedHeaders = ['id', 'kode_bk', 'kode_cpl','created_at', 'updated_at'];
+            if ($headers !== $expectedHeaders) {
+                throw new \Exception('Invalid CSV format. Please check the column headers.');
+            }
+
+            DB::beginTransaction();
+            try {
+                foreach ($csvData as $row) {
+                    list($id, $kode_bk, $kode_cpl,$created_at, $updated_at) = $row;
+                    $existingRecord = DB::table('bk_cpl')
+                        ->where('id', $id)
+                        ->where('kode_bk', $kode_bk)
+                        ->where('kode_cpl', $kode_cpl)
+                        ->first();
+                        DB::table('bk_cpl')->insert([
+                            'id' => $id,
+                            'kode_bk' => $kode_bk,
+                            'kode_cpl' => $kode_cpl,
+                        ]);
+                }
+                DB::commit();
+                   return redirect()->back()->with('success', 'File bk_cpl berhasil diunggah!');
+            } catch (\Exception $e) {
+                DB::rollback();
+                return redirect()->back()->withErrors([$e->getMessage()]);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([$e->getMessage()]);
+        }
+    }
+    public function deleteBK($id)
+    {
+        try {
+            DB::table('bk')->where('id', $id)->delete();
+            return redirect()->back()->with('success', 'BK berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([$e->getMessage()]);
+        }
+    }
+
+    public function deleteCPL($id)
+    {
+        try {
+            DB::table('cpl')->where('id', $id)->delete();
+            return redirect()->back()->with('success', 'CPL berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([$e->getMessage()]);
+        }
+    }
 
     public function logout(Request $request)
     {

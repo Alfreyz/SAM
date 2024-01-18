@@ -27,11 +27,12 @@ class MahasiswaController extends Controller
         $querygetnidn = DB::table('mahasiswa')
             ->join('transkrip_mahasiswa', 'mahasiswa.nim', '=', 'transkrip_mahasiswa.nim')
             ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
-            ->where('mahasiswa.nim', $idn)
+            ->where('mahasiswa.nim', '=', $idn)
             ->first();
-        $selectedNidn = $querygetnidn->nidn;
 
-        // Get data for the logged-in Mahasiswa
+        $selectedNidn = optional($querygetnidn)->nidn;
+
+
         $query = DB::table('transkrip_mahasiswa')
             ->leftJoin('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
             ->select('transkrip_mahasiswa.*', 'matakuliah.semester', 'matakuliah.nama_matakuliah', 'matakuliah.bahan_kajian', 'matakuliah.cpl')
@@ -79,12 +80,12 @@ class MahasiswaController extends Controller
             $data_cpl[] = $average;
         }
 
-        // Get data for the Mahasiswa related to the specific wali dosen
         $mahasiswabar1Query =  DB::table('mahasiswa')
             ->join('transkrip_mahasiswa', 'mahasiswa.nim', '=', 'transkrip_mahasiswa.nim')
             ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
             ->select('mahasiswa.id', 'mahasiswa.nim', 'mahasiswa.nidn', 'matakuliah.bahan_kajian', 'matakuliah.cpl', 'transkrip_mahasiswa.bobot')
             ->where('mahasiswa.nidn', $selectedNidn)
+            ->where('mahasiswa.angkatan', $querygetnidn->angkatan)
             ->get();
 
         $bahan_kajian_data_avg = [];
@@ -119,6 +120,8 @@ class MahasiswaController extends Controller
             $labels_cpl_group[] = $cpl;
             $data_cpl_group[] = $average;
         }
+
+
         $transkrip_mahasiswa = $query->paginate(5)->appends(['search' => $search]);
         return view('mahasiswa.home', compact('transkrip_mahasiswa', 'labels_bk', 'data_bk', 'labels_cpl', 'data_bk_group', 'data_cpl_group', 'data_cpl', 'search', 'idn'));
     }

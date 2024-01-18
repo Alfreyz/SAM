@@ -52,7 +52,6 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'idn' => 'required|unique:users',
             'password' => 'required|min:6',
-            'role' => 'required|in:admin,dosen,mahasiswa',
         ]);
     }
 
@@ -67,7 +66,7 @@ class RegisterController extends Controller
         return User::create([
             'idn' => $data['idn'],
             'password' => Hash::make($data['password']),
-            'role' => $data['role'],
+            'role' => 'admin',
         ]);
         $user->save();
     }

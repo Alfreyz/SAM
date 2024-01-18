@@ -115,7 +115,8 @@
                 responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        max: 4.0
                     }
                 }
             };
@@ -162,7 +163,8 @@
                 responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        max: 4.0
                     }
                 }
             };

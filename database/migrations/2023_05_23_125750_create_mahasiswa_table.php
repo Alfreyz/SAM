@@ -16,12 +16,13 @@ class CreateMahasiswaTable extends Migration
         Schema::create('mahasiswa', function (Blueprint $table) {
             $table->id();
             $table->string('nim')->unique();
+            $table->string('nama')->nullable();
+            $table->string('password');
             $table->string('nidn');
             $table->string('angkatan');
             $table->string('status');
             $table->timestamps();
             $table->foreign('nidn')->references('nidn')->on('dosen');
-            $table->foreign('nim')->references('idn')->on('users');
         });
     }
 
