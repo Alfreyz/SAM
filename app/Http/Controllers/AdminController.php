@@ -532,9 +532,29 @@ public function uploadMatakuliah(Request $request)
 
 public function deleteMatakuliah(Request $request, $kode_matakuliah)
 {
+    try {
+    // Cek apakah matakuliah dengan kode_matakuliah yang sama sudah ada di transkrip
+    $matakuliahInTranskrip = DB::table('matakuliah')
+        ->join('transkrip_mahasiswa', 'matakuliah.kode_matakuliah', '=', 'transkrip_mahasiswa.kode_matakuliah')
+        ->where('matakuliah.kode_matakuliah', $kode_matakuliah)
+        ->get();
+    // Jika sudah ada di transkrip, berikan pesan kesalahan
+    if ($matakuliahInTranskrip->isNotEmpty()) {
+        return back()->with('error', 'Matakuliah tidak dapat dihapus karena sudah ada di transkrip');
+    }
+
+    // Jika tidak ada di transkrip, lanjutkan dengan menghapus data matakuliah
     DB::table('matakuliah')->where('kode_matakuliah', $kode_matakuliah)->delete();
-    return back()->with('success', 'Matakuliah berhasil dihapus');
+
+    // Berikan pesan sukses
+    return back()->with('success', 'Matakuliah berhasil dihapus')->with('alert', 'success');
+    } catch (\Exception $e) {
+          // Tangani kesalahan dan berikan pesan error
+          return back()->with('error', 'Gagal menghapus matakuliah: ' . $e->getMessage());
+        }
 }
+
+
 
 public function updateMatakuliah(Request $request){
     $request->validate([

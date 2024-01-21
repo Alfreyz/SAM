@@ -15,6 +15,7 @@
             </ul>
         </div>
     @endif
+
     <div class="row">
         {{-- Data Dosen --}}
         <div class="col-md-4">
@@ -123,11 +124,11 @@
                                             data-semester="{{ $m->semester }}">
                                             Update
                                         </button>
-                                        <form
+                                        <form class="delete-form" data-kode-matakuliah="{{ $m->kode_matakuliah }}"
                                             action="{{ route('admin.deletematakuliah', ['kode_matakuliah' => $m->kode_matakuliah]) }}"
                                             method="post">
                                             @csrf
-                                            @method('delete')
+                                            @method('DELETE')
                                             <button type="submit" class="btn btn-danger">Delete</button>
                                         </form>
                                     </td>
@@ -267,6 +268,50 @@
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var deleteForms = document.querySelectorAll('.delete-form');
+
+            deleteForms.forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!confirm('Apakah Anda yakin ingin menghapus matakuliah ini?')) {
+                        event.preventDefault();
+                    } else {
+                        try {
+                            // Kirim formulir secara asynchronous menggunakan Fetch API
+                            fetch(form.action, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': form.querySelector(
+                                            'input[name="_token"]').value
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Gagal menghapus matakuliah');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    alert('Matakuliah berhasil dihapus!');
+                                    form.closest('.matakuliah-item').remove();
+                                })
+                                .catch(error => {
+                                    alert('Gagal menghapus matakuliah. Error: ' + error
+                                        .message);
+                                });
+                        } catch (error) {
+                            alert('Gagal menghapus matakuliah. Error: ' + error.message);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var myModal = new bootstrap.Modal(document.getElementById('updateModal'));
