@@ -53,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('admin/updatenilai/{nim}', 'AdminController@updatenilai')->name('admin.updatenilai');
         Route::post('admin/adddosen', 'AdminController@addDosen')->name('admin.adddosen');
         Route::post('admin/uploadmatakuliah', 'AdminController@uploadMatakuliah')->name('admin.uploadmatakuliah');
+        Route::post('admin/updatematakuliah', 'AdminController@updateMatakuliah')->name('admin.updatematakuliah');
         Route::delete('admin/deletematakuliah/{kode_matakuliah}', 'AdminController@deleteMatakuliah')->name('admin.deletematakuliah');
     });
 

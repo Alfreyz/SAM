@@ -22,7 +22,10 @@ class AdminController extends Controller
         if ($search) {
             $query->where(function ($query) use ($search) {
                 $query->where('nama_matakuliah', 'like', '%' . $search . '%')
-                    ->orWhere('semester', 'like', '%' . $search . '%');
+                    ->orWhere('semester', 'like', '%' . $search . '%')
+                    ->orWhere('bahan_kajian', 'like', '%' . $search . '%')
+                    ->orWhere('cpl', 'like', '%' . $search . '%')
+                    ->orWhere('kode_matakuliah', 'like', '%' . $search . '%');
             });
         }
         $matakuliah = $query->paginate(5, ['*'], 'page_matakuliah');
@@ -134,17 +137,22 @@ class AdminController extends Controller
     {
         $nim = $request->input('nim');
         $search = $request->input('search');
-
+        $nama = DB::table('mahasiswa')->where('nim', $nim)->value('nama');
         $query = DB::table('transkrip_mahasiswa')
-            ->leftJoin('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
-            ->leftJoin('mahasiswa', 'transkrip_mahasiswa.nim', '=', 'mahasiswa.nim')
-            ->select('transkrip_mahasiswa.*','mahasiswa.nidn','matakuliah.semester', 'matakuliah.nama_matakuliah', 'matakuliah.bahan_kajian', 'matakuliah.cpl');
-        $query->where('transkrip_mahasiswa.nim', $nim);
+        ->leftJoin('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
+        ->leftJoin('mahasiswa', 'transkrip_mahasiswa.nim', '=', 'mahasiswa.nim')
+        ->select('transkrip_mahasiswa.*', 'mahasiswa.nidn', 'matakuliah.semester', 'matakuliah.nama_matakuliah', 'matakuliah.bahan_kajian', 'matakuliah.cpl')
+        ->where('transkrip_mahasiswa.nim', $nim);
+
         if ($search) {
-            $query->where('matakuliah.nama_matakuliah', 'like', '%' . $search . '%');
+            $query->where(function ($query) use ($search) {
+                $query->where('matakuliah.nama_matakuliah', 'like', '%' . $search . '%')
+                    ->orWhere('matakuliah.bahan_kajian', 'like', '%' . $search . '%')
+                    ->orWhere('matakuliah.cpl', 'like', '%' . $search . '%')
+                    ->orWhere('matakuliah.kode_matakuliah', 'like', '%' . $search . '%');
+            });
         }
-        $query->orderBy('matakuliah.semester', 'asc');
-        $alldata = $query->get();
+        $alldata = $query->paginate(5, ['*'], 'page_mahasiswa');
         $dataMahasiswa = $alldata->groupBy('id');
         $bahan_kajian_data = [];
         $cpl_data = [];
@@ -194,7 +202,44 @@ class AdminController extends Controller
 
         $alldata = $query->paginate(5);
         $nidn = $alldata->first()->nidn;
-        return view('admin.adminmahasiswa', compact('alldata','nidn', 'labels_bk', 'data_bk', 'labels_cpl', 'data_cpl', 'bk_group_avg', 'cpl_group_avg', 'search', 'nim'));
+
+        $dataBK = \DB::table('transkrip_mahasiswa')
+        ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
+        ->join('bk', function($join) {
+            $join->whereRaw('FIND_IN_SET(bk.kode_bk, matakuliah.bahan_kajian) > 0');
+        })
+        ->where('transkrip_mahasiswa.nim', $nim)
+        ->select('bk.kode_bk', \DB::raw('COUNT(*) as jumlah_entri'))
+        ->groupBy('bk.kode_bk')
+        ->get();
+
+        $dataCPL = \DB::table('transkrip_mahasiswa')
+        ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
+        ->join('cpl', function($join) {
+            $join->whereRaw('FIND_IN_SET(cpl.kode_cpl, matakuliah.cpl) > 0');
+        })
+        ->where('transkrip_mahasiswa.nim', $nim)
+        ->select('cpl.kode_cpl', \DB::raw('COUNT(*) as jumlah_entri'))
+        ->groupBy('cpl.kode_cpl')
+        ->get();
+
+        $dataCountBKInMatakuliah = \DB::table('bk')
+        ->select('bk.kode_bk', \DB::raw('COUNT(*) as jumlah_entri'))
+        ->join('matakuliah', function ($join) {
+            $join->on(\DB::raw('FIND_IN_SET(bk.kode_bk, matakuliah.bahan_kajian)'), '>', \DB::raw('0'));
+        })
+        ->groupBy('bk.kode_bk')
+        ->paginate(5, ['*'], 'page_bk');
+
+        $dataCountCPLInMatakuliah = \DB::table('cpl')
+        ->select('cpl.kode_cpl', \DB::raw('COUNT(*) as jumlah_entri'))
+        ->join('matakuliah', function ($join) {
+            $join->on(\DB::raw('FIND_IN_SET(cpl.kode_cpl, matakuliah.cpl)'), '>', \DB::raw('0'));
+        })
+        ->groupBy('cpl.kode_cpl')
+        ->paginate(5, ['*'], 'page_cpl');
+
+        return view('admin.adminmahasiswa', compact('alldata','nidn','dataBK','dataCPL','dataCountBKInMatakuliah','dataCountCPLInMatakuliah','nama','labels_bk', 'data_bk', 'labels_cpl', 'data_cpl', 'bk_group_avg', 'cpl_group_avg', 'search', 'nim'));
         } else {
             return redirect()->route('error.route', ['nim' => $nim])->withErrors(['error' => 'Data not found']);
         }
@@ -491,4 +536,21 @@ public function deleteMatakuliah(Request $request, $kode_matakuliah)
     return back()->with('success', 'Matakuliah berhasil dihapus');
 }
 
+public function updateMatakuliah(Request $request){
+    $request->validate([
+        'kode_matakuliah' => 'required',
+        'nama_matakuliah' => 'required|string',
+        'semester' => 'required|string',
+        'bahan_kajian' => 'required|string',
+        'cpl' => 'required|string',
+    ]);
+    $kode_matakuliah = $request->input('kode_matakuliah');
+    $nama_matakuliah = $request->input('nama_matakuliah');
+    $semester = $request->input('semester');
+    $bahan_kajian = $request->input('bahan_kajian');
+    $cpl = $request->input('cpl');
+    DB::table('matakuliah')->where('kode_matakuliah', $kode_matakuliah)->update(['kode_matakuliah'=> $kode_matakuliah,'nama_matakuliah' => $nama_matakuliah, 'semester' => $semester, 'bahan_kajian' => $bahan_kajian, 'cpl' => $cpl]);
+    return back()->with('success', 'Data dosen berhasil diperbarui');
+
+}
 }

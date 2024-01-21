@@ -107,11 +107,14 @@ class DosenController extends Controller
 
         $query = DB::table('transkrip_mahasiswa')
             ->leftJoin('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
-            ->select('transkrip_mahasiswa.*','matakuliah.semester','matakuliah.nama_matakuliah', 'matakuliah.bahan_kajian', 'matakuliah.cpl');
-
-        $query->where('transkrip_mahasiswa.nim', $nim);
+            ->select('transkrip_mahasiswa.*','matakuliah.semester','matakuliah.nama_matakuliah', 'matakuliah.bahan_kajian', 'matakuliah.cpl')->where('transkrip_mahasiswa.nim', $nim);
         if ($search) {
-            $query->where('matakuliah.nama_matakuliah', 'like', '%' . $search . '%');
+            $query->where(function ($query) use ($search) {
+                $query->where('matakuliah.nama_matakuliah', 'like', '%' . $search . '%')
+                    ->orWhere('matakuliah.bahan_kajian', 'like', '%' . $search . '%')
+                    ->orWhere('matakuliah.cpl', 'like', '%' . $search . '%')
+                    ->orWhere('matakuliah.kode_matakuliah', 'like', '%' . $search . '%');
+            });
         }
 
         $transkrip_mahasiswa = $query->get();
@@ -159,7 +162,44 @@ class DosenController extends Controller
         $bk_group_avg = $resultDosen->data_bk;
         $cpl_group_avg = $resultDosen->data_cpl;
         $transkrip_mahasiswa = $query->paginate(5)->appends(['search' => $search]);
-        return view('dosen.datamahasiswa', compact('transkrip_mahasiswa', 'labels_bk', 'data_bk', 'labels_cpl', 'data_cpl','bk_group_avg','cpl_group_avg', 'search', 'nim'));
+
+        $dataBK = \DB::table('transkrip_mahasiswa')
+        ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
+        ->join('bk', function($join) {
+            $join->whereRaw('FIND_IN_SET(bk.kode_bk, matakuliah.bahan_kajian) > 0');
+        })
+        ->where('transkrip_mahasiswa.nim', $nim)
+        ->select('bk.kode_bk', \DB::raw('COUNT(*) as jumlah_entri'))
+        ->groupBy('bk.kode_bk')
+        ->get();
+
+        $dataCPL = \DB::table('transkrip_mahasiswa')
+        ->join('matakuliah', 'transkrip_mahasiswa.kode_matakuliah', '=', 'matakuliah.kode_matakuliah')
+        ->join('cpl', function($join) {
+            $join->whereRaw('FIND_IN_SET(cpl.kode_cpl, matakuliah.cpl) > 0');
+        })
+        ->where('transkrip_mahasiswa.nim', $nim)
+        ->select('cpl.kode_cpl', \DB::raw('COUNT(*) as jumlah_entri'))
+        ->groupBy('cpl.kode_cpl')
+        ->get();
+
+        $dataCountBKInMatakuliah = \DB::table('bk')
+        ->select('bk.kode_bk', \DB::raw('COUNT(*) as jumlah_entri'))
+        ->join('matakuliah', function ($join) {
+            $join->on(\DB::raw('FIND_IN_SET(bk.kode_bk, matakuliah.bahan_kajian)'), '>', \DB::raw('0'));
+        })
+        ->groupBy('bk.kode_bk')
+        ->paginate(5, ['*'], 'page_bk');
+
+        $dataCountCPLInMatakuliah = \DB::table('cpl')
+        ->select('cpl.kode_cpl', \DB::raw('COUNT(*) as jumlah_entri'))
+        ->join('matakuliah', function ($join) {
+            $join->on(\DB::raw('FIND_IN_SET(cpl.kode_cpl, matakuliah.cpl)'), '>', \DB::raw('0'));
+        })
+        ->groupBy('cpl.kode_cpl')
+        ->paginate(5, ['*'], 'page_cpl');
+
+        return view('dosen.datamahasiswa', compact('transkrip_mahasiswa','dataBK','dataCPL','dataCountBKInMatakuliah','dataCountCPLInMatakuliah', 'labels_bk', 'data_bk', 'labels_cpl', 'data_cpl','bk_group_avg','cpl_group_avg', 'search', 'nim'));
     }
 
     public function updatenilai(Request $request, $nim)

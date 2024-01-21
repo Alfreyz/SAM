@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Data Mahasiswa - ' . $nim)
+@section('title', 'Data Mahasiswa - ' . $nama)
 @section('back-button')
     <a href="{{ route('admin.datadosen', ['nidn' => $nidn]) }}">- Back</a>
 @endsection
@@ -42,23 +42,23 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12 mt-4">
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    <div class="row">
+        <div class="col-md-8 mt-4">
             <div class="card">
                 <div class="card-header d-flex">
                     <h3 class="card-title" style="font-weight: bold">Data Matakuliah</h3>
@@ -110,7 +110,8 @@
                                     <td>{{ $data->cpl }}</td>
                                     <td class="text-center">{{ $data->nilai }}</td>
                                     <td class="text-center">{{ $data->bobot }}</td>
-                                    <td class="text-center">{{ session('bobot_lama_' . $data->kode_matakuliah) }}</td>
+                                    <td class="text-center">{{ session('bobot_lama_' . $data->kode_matakuliah) }}
+                                    </td>
                                     <td class="d-flex gap-3">
                                         <button class="btn btn-warning text-white update-btn" style="text-decoration: none"
                                             data-kode_matakuliah="{{ $data->kode_matakuliah }}"
@@ -133,7 +134,70 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-2 mt-4">
+            <div class="card">
+                <div class="card-header d-flex">
+                    <h3 class="card-title" style="font-weight: bold">Data BK</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">BK</th>
+                                <th style="width: 12%">Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($dataCountBKInMatakuliah as $bkCount)
+                                @php
+                                    $dataBKMatched = $dataBK->firstWhere('kode_bk', $bkCount->kode_bk);
+                                    $jumlah_entri_dataBK = optional($dataBKMatched)->jumlah_entri ?? 0;
+                                    $jumlah_entri_bkCount = $bkCount->jumlah_entri;
+                                @endphp
+                                <tr>
+                                    <td>{{ $bkCount->kode_bk }}</td>
+                                    <td>{{ $jumlah_entri_dataBK }} / {{ $jumlah_entri_bkCount }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    {{ $dataCountBKInMatakuliah->appends(['nim' => $nim])->links('pagination::bootstrap-4') }}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mt-4">
+            <div class="card">
+                <div class="card-header d-flex">
+                    <h3 class="card-title" style="font-weight: bold">Data CP</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">CP</th>
+                                <th style="width: 12%">Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($dataCountCPLInMatakuliah as $cplCount)
+                                @php
+                                    $dataCPLMatched = $dataCPL->firstWhere('kode_cpl', $cplCount->kode_cpl);
+                                    $jumlah_entri_datacpl = optional($dataCPLMatched)->jumlah_entri ?? 0;
+                                    $jumlah_entri_cplCount = $cplCount->jumlah_entri;
+                                @endphp
+                                <tr>
+                                    <td>{{ $cplCount->kode_cpl }}</td>
+                                    <td>{{ $jumlah_entri_datacpl }} / {{ $jumlah_entri_cplCount }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    {{ $dataCountCPLInMatakuliah->appends(['nim' => $nim])->links('pagination::bootstrap-4') }}
+                </div>
+            </div>
+        </div>
     </div>
+
     <!-- Modal -->
     <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -189,11 +253,6 @@
             </div>
         </div>
     </div>
-
-    <!-- ... (your existing HTML code) ... -->
-
-    <!-- ... (your existing HTML code) ... -->
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var myModal = new bootstrap.Modal(document.getElementById('updateModal'));

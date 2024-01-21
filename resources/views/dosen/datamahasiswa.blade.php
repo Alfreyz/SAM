@@ -44,13 +44,13 @@
     </div>
     <!-- TABLE -->
     <div class="row">
-        <div class="col-md-12 mt-4">
+        <div class="col-md-8 mt-4">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Data Matakuliah</h3>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.adminmahasiswa') }}" method="GET" class="input-group mb-3">
+                    <form action="{{ route('dosen.datamahasiswa') }}" method="GET" class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="Search by Nama Matakuliah" name="search"
                             value="{{ $search ?? '' }}">
                         <input type="hidden" name="nim" value="{{ $nim ?? '' }}">
@@ -104,19 +104,68 @@
                 </div>
             </div>
         </div>
-
-        {{-- <div class="col-md-6 mt-4">
+        <div class="col-md-2 mt-4">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Grafik Nilai Matakuliah</h3>
+                <div class="card-header d-flex">
+                    <h3 class="card-title" style="font-weight: bold">Data BK</h3>
                 </div>
                 <div class="card-body">
                     <table class="table table-bordered">
-                        <!-- Table content -->
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">BK</th>
+                                <th style="width: 12%">Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($dataCountBKInMatakuliah as $bkCount)
+                                @php
+                                    $dataBKMatched = $dataBK->firstWhere('kode_bk', $bkCount->kode_bk);
+                                    $jumlah_entri_dataBK = optional($dataBKMatched)->jumlah_entri ?? 0;
+                                    $jumlah_entri_bkCount = $bkCount->jumlah_entri;
+                                @endphp
+                                <tr>
+                                    <td>{{ $bkCount->kode_bk }}</td>
+                                    <td>{{ $jumlah_entri_dataBK }} / {{ $jumlah_entri_bkCount }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
                     </table>
+                    {{ $dataCountBKInMatakuliah->appends(['nim' => $nim])->links('pagination::bootstrap-4') }}
                 </div>
             </div>
-        </div> --}}
+        </div>
+        <div class="col-md-2 mt-4">
+            <div class="card">
+                <div class="card-header d-flex">
+                    <h3 class="card-title" style="font-weight: bold">Data CP</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">CP</th>
+                                <th style="width: 12%">Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($dataCountCPLInMatakuliah as $cplCount)
+                                @php
+                                    $dataCPLMatched = $dataCPL->firstWhere('kode_cpl', $cplCount->kode_cpl);
+                                    $jumlah_entri_datacpl = optional($dataCPLMatched)->jumlah_entri ?? 0;
+                                    $jumlah_entri_cplCount = $cplCount->jumlah_entri;
+                                @endphp
+                                <tr>
+                                    <td>{{ $cplCount->kode_cpl }}</td>
+                                    <td>{{ $jumlah_entri_datacpl }} / {{ $jumlah_entri_cplCount }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    {{ $dataCountCPLInMatakuliah->appends(['nim' => $nim])->links('pagination::bootstrap-4') }}
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Modal -->
     <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">

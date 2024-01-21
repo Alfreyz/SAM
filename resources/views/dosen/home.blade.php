@@ -90,8 +90,9 @@
                         <thead>
                             <tr>
                                 <th style="width: 2%; text-align: center;">No</th>
-                                <th style="width: 20%; text-align: center;">NIM</th>
-                                <th style="width: 20%">Status</th>
+                                <th style="width: 8%; text-align: center;">NIM</th>
+                                <th style="width: 30%">Nama</th>
+                                <th style="width: 5%">Status</th>
                                 <th style="width: 2%; text-align: center;">Action</th>
                             </tr>
                         </thead>
@@ -103,10 +104,16 @@
                                 <tr>
                                     <td style="text-align: center">{{ $no++ }}</td>
                                     <td>{{ $m->nim }}</td>
+                                    <td>{{ $m->nama }}</td>
                                     <td>{{ $m->status }}</td>
-                                    <td style="text-align: center">
+                                    <td class="d-flex gap-3" style="text-align: center">
                                         <a class="btn btn-primary text-white" style="text-decoration: none"
                                             href="{{ route('dosen.datamahasiswa', ['nim' => $m->nim]) }}">Select</a>
+                                        <button class="btn btn-warning text-white update-btn" style="text-decoration: none"
+                                            data-nim="{{ $m->nim }}" data-status="{{ $m->status }}"
+                                            data-bs-toggle="modal" data-bs-target="#updateModal">
+                                            Update
+                                        </button>
                                     </td>
                             @endforeach
                             </tr>
